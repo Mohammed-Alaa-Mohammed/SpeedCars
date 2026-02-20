@@ -2,1022 +2,1694 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
+<meta name="theme-color" content="#00f0ff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<title>عداد السرعة الذكي المتطور</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<title>عدّاد السرعة الفاخر | VeloxPro</title>
 <style>
+/* ===== متغيرات CSS المدعومة في جميع المتصفحات ===== */
 :root {
-    --neon-blue: #00fff2;
-    --neon-pink: #ff00ff;
-    --dark-bg: #060912;
-    --card-bg: #1a1f2e;
-    --success-green: #00ff88;
-    --warning-yellow: #ffaa00;
-    --danger-red: #ff0066;
+    --primary: #00f0ff;
+    --primary-glow: rgba(0, 240, 255, 0.5);
+    --secondary: #b829ff;
+    --secondary-glow: rgba(184, 41, 255, 0.5);
+    --success: #00e676;
+    --warning: #ffd600;
+    --danger: #ff1744;
+    --dark: #0b0c15;
+    --darker: #05060a;
+    --card-bg: rgba(18, 22, 35, 0.8);
+    --card-border: rgba(0, 240, 255, 0.15);
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-dim: rgba(255, 255, 255, 0.4);
+    
+    /* متغيرات للشاشات المختلفة */
+    --gauge-size-desktop: min(600px, 80vw);
+    --gauge-size-mobile: min(350px, 85vw);
+    --center-size-desktop: 140px;
+    --center-size-mobile: 100px;
+    --font-size-large-desktop: 58px;
+    --font-size-large-mobile: 42px;
 }
 
+/* ===== إعادة تعيين CSS ===== */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Orbitron', 'Segoe UI', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ===== الإعدادات العامة ===== */
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    scroll-behavior: smooth;
 }
 
 body {
-    background: linear-gradient(135deg, var(--dark-bg), #0a0f1f, #02040a);
-    color: white;
-    text-align: center;
-    min-height: 100vh;
-    transition: all 0.3s ease;
-    position: relative;
+    background: var(--darker);
+    color: var(--text-primary);
+    font-family: 'Tajawal', sans-serif;
+    line-height: 1.6;
+    direction: rtl;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* شاشة طلب الإذن */
-.permission-overlay {
+/* ===== خلفية متحركة محسنة ===== */
+.background {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(2, 4, 10, 0.98);
-    backdrop-filter: blur(15px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    animation: fadeIn 0.5s ease;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
-}
-
-.permission-overlay.hidden {
-    opacity: 0;
-    visibility: hidden;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
     pointer-events: none;
 }
 
-.permission-card {
-    background: linear-gradient(145deg, #1a1f30, #0f1422);
-    border: 2px solid var(--neon-blue);
-    border-radius: 30px;
-    padding: 40px;
-    max-width: 450px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 0 50px var(--neon-blue);
-    animation: slideUp 0.5s ease;
-    transform: translateY(0);
-    transition: transform 0.5s ease;
+.gradient-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 30%, rgba(0, 240, 255, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 80% 70%, rgba(184, 41, 255, 0.08) 0%, transparent 60%),
+                linear-gradient(145deg, var(--darker) 0%, #0f121f 50%, var(--darker) 100%);
 }
 
-.permission-overlay.hidden .permission-card {
-    transform: translateY(-50px);
+.particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
-.permission-icon {
-    font-size: 80px;
-    color: var(--neon-blue);
-    margin-bottom: 20px;
+.particle {
+    position: absolute;
+    width: clamp(1px, 0.15vw, 3px);
+    height: clamp(1px, 0.15vw, 3px);
+    background: var(--primary);
+    border-radius: 50%;
+    box-shadow: 0 0 calc(clamp(5px, 1vw, 15px)) var(--primary);
+    opacity: 0.4;
+    animation: float linear infinite;
+    will-change: transform;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(100vh) translateX(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.4;
+    }
+    90% {
+        opacity: 0.4;
+    }
+    100% {
+        transform: translateY(-100vh) translateX(calc(clamp(20px, 5vw, 100px)));
+        opacity: 0;
+    }
+}
+
+/* ===== الحاوية الرئيسية المتجاوبة ===== */
+.container-custom {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: clamp(10px, 3vw, 30px);
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== شريط الحالة المحسن ===== */
+.status-bar {
+    background: rgba(18, 22, 35, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--card-border);
+    border-radius: clamp(40px, 6vw, 60px);
+    padding: clamp(10px, 2vw, 15px) clamp(15px, 3vw, 25px);
+    margin-bottom: clamp(15px, 4vh, 30px);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: clamp(10px, 2vw, 20px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.status-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: clamp(10px, 3vw, 30px);
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: clamp(5px, 1vw, 10px);
+    font-size: clamp(12px, 2.5vw, 14px);
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.status-dot {
+    width: clamp(8px, 1.5vw, 10px);
+    height: clamp(8px, 1.5vw, 10px);
+    border-radius: 50%;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.status-dot.active {
+    background: var(--success);
+    box-shadow: 0 0 calc(clamp(10px, 2vw, 20px)) var(--success);
     animation: pulse 2s infinite;
 }
 
-.permission-title {
-    font-size: 28px;
-    font-weight: 900;
-    background: linear-gradient(135deg, #fff, var(--neon-blue));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 15px;
+.status-dot.warning {
+    background: var(--warning);
+    box-shadow: 0 0 calc(clamp(10px, 2vw, 20px)) var(--warning);
 }
 
-.permission-text {
-    color: #aaa;
-    margin-bottom: 30px;
-    line-height: 1.8;
-    font-size: 16px;
+.status-dot.danger {
+    background: var(--danger);
+    box-shadow: 0 0 calc(clamp(10px, 2vw, 20px)) var(--danger);
 }
 
-.permission-buttons {
+.status-dot.inactive {
+    background: var(--text-dim);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+.status-value {
+    color: var(--text-primary);
+    font-weight: 700;
+    margin-left: 5px;
+}
+
+/* ===== العداد الرئيسي المتجاوب ===== */
+.speedometer-wrapper {
+    position: relative;
+    width: 100%;
     display: flex;
-    gap: 15px;
     justify-content: center;
-    flex-wrap: wrap;
-}
-
-.btn-permission {
-    padding: 12px 30px;
-    border: none;
-    border-radius: 50px;
-    font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
     align-items: center;
-    gap: 10px;
+    margin: clamp(10px, 3vh, 30px) 0;
 }
 
-.btn-allow {
-    background: linear-gradient(135deg, var(--neon-blue), #00ccff);
-    color: var(--dark-bg);
-    box-shadow: 0 0 20px var(--neon-blue);
+.speedometer {
+    position: relative;
+    width: var(--gauge-size-desktop);
+    height: var(--gauge-size-desktop);
+    max-width: 600px;
+    max-height: 600px;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.05), transparent 70%),
+                linear-gradient(145deg, var(--card-bg), var(--darker));
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.5),
+        inset 0 0 calc(clamp(50px, 10vw, 100px)) rgba(0, 240, 255, 0.15),
+        inset 0 0 calc(clamp(30px, 5vw, 50px)) rgba(184, 41, 255, 0.1);
+    border: 1px solid rgba(0, 240, 255, 0.2);
 }
 
-.btn-allow:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0 40px var(--neon-blue);
+@media (max-width: 768px) {
+    .speedometer {
+        width: var(--gauge-size-mobile);
+        height: var(--gauge-size-mobile);
+    }
 }
 
-.btn-deny {
-    background: transparent;
-    color: #fff;
-    border: 2px solid #ff0066;
-    box-shadow: 0 0 20px #ff0066;
+.speedometer::before {
+    content: '';
+    position: absolute;
+    top: 3%;
+    left: 3%;
+    right: 3%;
+    bottom: 3%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 70% 70%, rgba(0, 240, 255, 0.1), transparent 70%);
+    border: 1px solid rgba(0, 240, 255, 0.1);
 }
 
-.btn-deny:hover {
-    background: #ff0066;
-    transform: translateY(-3px);
+.speedometer::after {
+    content: '';
+    position: absolute;
+    top: 7%;
+    left: 7%;
+    right: 7%;
+    bottom: 7%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(184, 41, 255, 0.1), transparent 70%);
+    border: 1px solid rgba(184, 41, 255, 0.1);
 }
 
-/* شاشة التحميل */
-.loading-overlay {
-    position: fixed;
+/* تدرجات العداد المحسنة */
+.gauge-tick {
+    position: absolute;
+    width: max(0.2vw, 2px);
+    height: min(3vw, 25px);
+    background: linear-gradient(to bottom, var(--primary), var(--secondary));
+    top: 50%;
+    left: 50%;
+    transform-origin: bottom;
+    border-radius: 4px;
+    box-shadow: 0 0 calc(clamp(5px, 1vw, 10px)) var(--primary);
+    opacity: 0.5;
+    will-change: transform;
+}
+
+.gauge-tick.major {
+    width: max(0.3vw, 4px);
+    height: min(4vw, 35px);
+    opacity: 1;
+    background: linear-gradient(to bottom, #fff, var(--primary));
+}
+
+.gauge-tick.minor {
+    width: max(0.15vw, 1.5px);
+    height: min(2vw, 15px);
+    opacity: 0.3;
+}
+
+/* أرقام العداد المتجاوبة */
+.gauge-number {
+    position: absolute;
+    font-size: clamp(12px, 3vw, 18px);
+    font-weight: 900;
+    color: var(--text-secondary);
+    text-shadow: 0 0 calc(clamp(5px, 1vw, 10px)) var(--primary);
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    font-family: 'Tajawal', sans-serif;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+@media (max-width: 480px) {
+    .gauge-number {
+        font-size: 10px;
+        font-weight: 700;
+    }
+}
+
+/* الإبرة المحسنة */
+.needle-container {
+    position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(2, 4, 10, 0.9);
-    backdrop-filter: blur(5px);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 9998;
-    transition: opacity 0.3s ease;
-}
-
-.loading-spinner {
-    width: 60px;
-    height: 60px;
-    border: 5px solid var(--neon-blue);
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-/* رسالة النجاح السريعة */
-.success-toast {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(-100px);
-    background: linear-gradient(135deg, #00ff88, #00ccff);
-    color: var(--dark-bg);
-    padding: 15px 30px;
-    border-radius: 50px;
-    font-weight: 600;
-    z-index: 10000;
-    box-shadow: 0 0 30px #00ff88;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.success-toast.show {
-    transform: translateX(-50%) translateY(0);
-}
-
-/* باقي الأنماط */
-.gauge {
-    position: relative;
-    width: 350px;
-    height: 350px;
-    margin: 20px auto;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #1a1f30, #02040a);
-    box-shadow: 0 0 30px var(--neon-blue), 0 0 60px rgba(0, 255, 242, 0.3), inset 0 0 50px rgba(0, 255, 242, 0.2);
-    transition: box-shadow 0.3s ease;
-}
-
-.gauge.active {
-    box-shadow: 0 0 40px var(--neon-blue), 0 0 80px rgba(0, 255, 242, 0.4), inset 0 0 60px rgba(0, 255, 242, 0.3);
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
 }
 
 .needle {
     position: absolute;
-    width: 4px;
-    height: 140px;
-    background: linear-gradient(to top, #ff3333, #ff0066);
+    width: max(0.4vw, 6px);
+    height: 45%;
+    background: linear-gradient(to top, var(--danger), var(--secondary));
     top: 50%;
     left: 50%;
     transform-origin: bottom;
-    transform: rotate(-130deg);
-    border-radius: 4px 4px 0 0;
-    box-shadow: 0 0 20px #ff0066;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    z-index: 10;
+    transform: rotate(-135deg);
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 0 calc(clamp(15px, 3vw, 30px)) var(--secondary);
+    transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+    will-change: transform;
+}
+
+.needle::before {
+    content: '';
+    position: absolute;
+    top: -8%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(3vw, 20px);
+    height: min(3vw, 20px);
+    background: radial-gradient(circle, var(--primary), var(--secondary));
+    border-radius: 50%;
+    box-shadow: 0 0 calc(clamp(15px, 3vw, 30px)) var(--primary);
 }
 
 .needle::after {
     content: '';
     position: absolute;
-    width: 16px;
-    height: 16px;
-    background: radial-gradient(circle, #ff0066, #ff3333);
+    bottom: -10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(6vw, 40px);
+    height: min(6vw, 40px);
+    background: radial-gradient(circle, rgba(255,255,255,0.2), transparent 70%);
     border-radius: 50%;
-    bottom: -8px;
-    left: -6px;
-    box-shadow: 0 0 20px #ff0066;
+    z-index: -1;
 }
 
-.center-speed {
+/* مركز العداد المتجاوب */
+.center-cap {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 58px;
-    font-weight: 900;
-    background: linear-gradient(135deg, #fff, var(--neon-blue));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 30px rgba(0, 255, 242, 0.5);
+    width: min(25%, 140px);
+    height: min(25%, 140px);
+    min-width: 80px;
+    min-height: 80px;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), var(--dark));
+    border-radius: 50%;
+    border: 2px solid rgba(0, 240, 255, 0.3);
+    box-shadow: 0 0 calc(clamp(30px, 5vw, 50px)) var(--primary-glow);
     z-index: 20;
-    font-family: 'Digital', monospace;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
 }
 
-.tick {
-    position: absolute;
-    width: 3px;
-    height: 15px;
-    background: linear-gradient(to bottom, #fff, var(--neon-blue));
-    top: 50%;
-    left: 50%;
-    transform-origin: bottom;
-    border-radius: 3px;
+.current-speed {
+    font-size: clamp(28px, 8vw, 58px);
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff, var(--primary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1;
+    font-family: 'Tajawal', sans-serif;
+    text-align: center;
 }
 
-.tick-major {
-    width: 4px;
-    height: 25px;
-    background: linear-gradient(to bottom, #fff, #ff00ff);
+.speed-unit {
+    font-size: clamp(12px, 3vw, 18px);
+    color: var(--text-secondary);
+    margin-top: 5px;
 }
 
-.label {
-    position: absolute;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--neon-blue);
-    transform: translate(-50%, -50%);
-    text-shadow: 0 0 10px currentColor;
-    z-index: 5;
+/* ===== شبكة البطاقات المتجاوبة ===== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(10px, 2vw, 20px);
+    margin: clamp(15px, 4vh, 30px) 0;
+}
+
+@media (max-width: 992px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
 }
 
 .stat-card {
-    background: linear-gradient(145deg, var(--card-bg), #0f1422);
-    border: 1px solid rgba(0, 255, 242, 0.2);
-    border-radius: 15px;
-    padding: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    background: var(--card-bg);
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    border: 1px solid var(--card-border);
+    border-radius: clamp(15px, 3vw, 30px);
+    padding: clamp(15px, 3vw, 25px);
     transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(0,240,255,0.1), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.5s;
+    pointer-events: none;
 }
 
 .stat-card:hover {
     transform: translateY(-5px);
-    border-color: var(--neon-blue);
-    box-shadow: 0 15px 40px rgba(0, 255, 242, 0.3);
+    border-color: var(--primary);
+    box-shadow: 0 15px 30px rgba(0, 240, 255, 0.15);
+}
+
+.stat-icon {
+    font-size: clamp(24px, 5vw, 32px);
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: clamp(12px, 2vw, 14px);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
 }
 
 .stat-value {
-    font-size: 28px;
-    font-weight: bold;
-    background: linear-gradient(135deg, #fff, var(--neon-blue));
+    font-size: clamp(28px, 6vw, 42px);
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff, var(--primary));
     -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-family: 'Digital', monospace;
+    background-clip: text;
+    color: transparent;
+    line-height: 1.2;
+    font-family: 'Tajawal', sans-serif;
+    word-break: break-word;
 }
 
-.control-btn {
-    background: linear-gradient(145deg, var(--card-bg), #0f1422);
-    border: 1px solid var(--neon-blue);
-    color: var(--neon-blue);
-    padding: 10px 20px;
-    border-radius: 25px;
-    transition: all 0.3s ease;
-    font-weight: 600;
+.stat-unit {
+    font-size: clamp(12px, 2.5vw, 16px);
+    color: var(--text-secondary);
+    margin-right: 5px;
+}
+
+/* ===== بطاقة الخريطة المتجاوبة ===== */
+.map-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    border: 1px solid var(--card-border);
+    border-radius: clamp(15px, 3vw, 30px);
+    padding: clamp(15px, 3vw, 25px);
+    margin: clamp(15px, 4vh, 30px) 0;
+}
+
+.map-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    color: var(--text-secondary);
+    font-size: clamp(14px, 3vw, 16px);
+}
+
+.map-title i {
+    color: var(--primary);
+    font-size: clamp(16px, 4vw, 20px);
+}
+
+.map-container {
+    position: relative;
+    width: 100%;
+    height: clamp(150px, 40vh, 300px);
+    border-radius: clamp(10px, 2vw, 20px);
+    overflow: hidden;
+    background: linear-gradient(145deg, var(--darker), #000);
+    border: 1px solid var(--card-border);
+}
+
+.map-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(rgba(0,240,255,0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,240,255,0.1) 1px, transparent 1px);
+    background-size: min(30px, 5vw) min(30px, 5vw);
+}
+
+.map-marker {
+    position: absolute;
+    width: clamp(15px, 4vw, 20px);
+    height: clamp(15px, 4vw, 20px);
+    background: var(--primary);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 clamp(20px, 5vw, 40px) var(--primary);
+    transition: all 0.5s ease;
+    z-index: 10;
+}
+
+.map-marker::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+    top: -50%;
+    left: -50%;
+    border-radius: 50%;
+    animation: ping 2s infinite;
+}
+
+.map-marker::after {
+    content: '';
+    position: absolute;
+    width: 30%;
+    height: 30%;
+    background: white;
+    border-radius: 50%;
+    top: 35%;
+    left: 35%;
+}
+
+@keyframes ping {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.5); opacity: 0; }
+}
+
+.map-coordinates {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 15px;
+    color: var(--text-secondary);
+    font-size: clamp(12px, 2.5vw, 14px);
+    direction: ltr;
+}
+
+/* ===== الرسم البياني المتجاوب ===== */
+.chart-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    border: 1px solid var(--card-border);
+    border-radius: clamp(15px, 3vw, 30px);
+    padding: clamp(15px, 3vw, 25px);
+    margin: clamp(15px, 4vh, 30px) 0;
+}
+
+.chart-container {
+    width: 100%;
+    height: clamp(120px, 25vh, 200px);
+    display: flex;
+    align-items: flex-end;
+    gap: max(3px, 0.5vw);
+    margin-top: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 5px;
+    scrollbar-width: thin;
+}
+
+.chart-bar {
+    flex: 1 0 auto;
+    min-width: clamp(25px, 8vw, 40px);
+    background: linear-gradient(to top, var(--primary), var(--secondary));
+    border-radius: 8px 8px 0 0;
+    transition: height 0.3s ease;
+    position: relative;
     cursor: pointer;
 }
 
-.control-btn:hover:not(:disabled) {
-    background: var(--neon-blue);
-    color: var(--dark-bg);
-    box-shadow: 0 0 30px var(--neon-blue);
+.chart-bar:hover {
+    filter: brightness(1.2);
+    transform: scaleY(1.05);
+}
+
+.chart-bar::after {
+    content: attr(data-value);
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(10px, 2vw, 12px);
+    color: var(--primary);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.chart-label {
+    text-align: center;
+    font-size: clamp(10px, 2vw, 12px);
+    color: var(--text-secondary);
+    margin-top: 5px;
+    min-width: clamp(25px, 8vw, 40px);
+}
+
+/* ===== سجل الأحداث المتجاوب ===== */
+.history-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    border: 1px solid var(--card-border);
+    border-radius: clamp(15px, 3vw, 30px);
+    padding: clamp(15px, 3vw, 25px);
+    margin: clamp(15px, 4vh, 30px) 0;
+}
+
+.history-list {
+    max-height: clamp(150px, 40vh, 250px);
+    overflow-y: auto;
+    padding: 5px;
+    scrollbar-width: thin;
+}
+
+.history-item {
+    background: rgba(0, 240, 255, 0.05);
+    border: 1px solid var(--card-border);
+    border-radius: clamp(10px, 2vw, 15px);
+    padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 18px);
+    margin: 5px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    font-size: clamp(12px, 2.5vw, 14px);
+}
+
+.history-item:hover {
+    background: rgba(0, 240, 255, 0.1);
+    transform: translateX(-5px);
+    border-color: var(--primary);
+}
+
+.history-time {
+    color: var(--primary);
+    font-family: monospace;
+}
+
+.history-speed {
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: rgba(0,240,255,0.1);
+}
+
+/* ===== لوحة التحكم المتجاوبة ===== */
+.control-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(8px, 2vw, 15px);
+    justify-content: center;
+    margin: clamp(20px, 5vh, 40px) 0;
+}
+
+.control-btn {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    padding: clamp(10px, 2vw, 15px) clamp(15px, 3vw, 30px);
+    border-radius: clamp(25px, 5vw, 60px);
+    font-size: clamp(14px, 2.5vw, 16px);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(5px, 1.5vw, 12px);
+    position: relative;
+    overflow: hidden;
+    min-width: max(120px, 25vw);
+    flex: 0 1 auto;
+}
+
+@media (max-width: 480px) {
+    .control-btn {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+.control-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(0, 240, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+}
+
+.control-btn:hover::before {
+    width: 300%;
+    height: 300%;
+}
+
+.control-btn:hover {
+    border-color: var(--primary);
+    box-shadow: 0 0 clamp(15px, 3vw, 30px) var(--primary-glow);
+    transform: translateY(-2px);
+}
+
+.control-btn.primary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: var(--darker);
+    border: none;
+}
+
+.control-btn.primary:hover {
+    box-shadow: 0 0 clamp(20px, 4vw, 40px) var(--primary);
+}
+
+.control-btn.danger {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.control-btn.danger:hover {
+    background: var(--danger);
+    color: white;
+    box-shadow: 0 0 clamp(20px, 4vw, 40px) var(--danger);
 }
 
 .control-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    border-color: #666;
+    border-color: var(--text-dim);
 }
 
-.history-item {
-    background: rgba(0, 255, 242, 0.1);
-    border-radius: 10px;
-    padding: 8px 12px;
-    margin: 5px 0;
-    border: 1px solid rgba(0, 255, 242, 0.2);
+/* ===== بنر التنبيهات المحسن ===== */
+.alert-banner {
+    position: fixed;
+    top: max(10px, 3vh);
+    right: max(10px, 3vw);
+    left: max(10px, 3vw);
+    max-width: 400px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--primary);
+    border-radius: clamp(30px, 5vw, 60px);
+    padding: clamp(10px, 2vw, 15px) clamp(15px, 3vw, 25px);
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    font-size: 14px;
+    gap: clamp(10px, 2vw, 15px);
+    color: var(--primary);
+    font-weight: 700;
+    font-size: clamp(14px, 3vw, 16px);
+    transform: translateY(-200%);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 10000;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    direction: rtl;
 }
 
-.speed-unit {
-    font-size: 16px;
-    color: #888;
-    margin-right: 5px;
+.alert-banner.show {
+    transform: translateY(0);
 }
 
-.error-message {
-    background: rgba(255, 0, 102, 0.2);
-    border: 1px solid #ff0066;
+.alert-banner.warning {
+    border-color: var(--warning);
+    color: var(--warning);
+}
+
+.alert-banner.danger {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.alert-banner.success {
+    border-color: var(--success);
+    color: var(--success);
+}
+
+.alert-banner i {
+    font-size: clamp(16px, 4vw, 20px);
+    flex-shrink: 0;
+}
+
+.alert-banner span {
+    flex: 1;
+    word-break: break-word;
+}
+
+/* ===== تخصيص شريط التمرير ===== */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--darker);
     border-radius: 10px;
-    padding: 10px;
-    margin: 10px 0;
-    color: #ff0066;
-    font-size: 14px;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 10px;
 }
 
-@keyframes slideUp {
-    from { transform: translateY(50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.7; transform: scale(1.1); }
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-@media (max-width: 768px) {
-    .gauge {
-        width: 300px;
-        height: 300px;
+/* ===== تحسينات للأجهزة التي تعمل باللمس ===== */
+@media (hover: none) and (pointer: coarse) {
+    .stat-card:hover,
+    .control-btn:hover,
+    .history-item:hover {
+        transform: none;
     }
     
-    .center-speed {
-        font-size: 48px;
+    .control-btn {
+        -webkit-tap-highlight-color: rgba(0, 240, 255, 0.3);
+    }
+}
+
+/* ===== دعم الوضع الأفقي ===== */
+@media (orientation: landscape) and (max-height: 500px) {
+    .speedometer-wrapper {
+        max-width: 40vh;
+        margin: 10px auto;
     }
     
-    .stat-value {
-        font-size: 22px;
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
     
-    .permission-card {
-        padding: 25px;
+    .control-panel {
+        flex-wrap: wrap;
+    }
+}
+
+/* ===== تحسينات للشاشات الصغيرة جداً ===== */
+@media (max-width: 320px) {
+    .status-item {
+        font-size: 11px;
     }
     
-    .permission-title {
-        font-size: 22px;
+    .gauge-number {
+        font-size: 8px;
+    }
+    
+    .current-speed {
+        font-size: 24px;
+    }
+}
+
+/* ===== تحسينات للشاشات الكبيرة جداً ===== */
+@media (min-width: 2000px) {
+    .container-custom {
+        max-width: 1800px;
+    }
+    
+    .speedometer {
+        width: 800px;
+        height: 800px;
+    }
+    
+    .gauge-number {
+        font-size: 24px;
     }
 }
 </style>
 </head>
 <body>
 
-<!-- شاشة طلب الإذن -->
-<div class="permission-overlay" id="permissionOverlay">
-    <div class="permission-card">
-        <div class="permission-icon">
-            <i class="bi bi-geo-alt-fill"></i>
-        </div>
-        <h2 class="permission-title">طلب الوصول للموقع</h2>
-        <p class="permission-text" id="permissionMessage">
-            يحتاج تطبيق عداد السرعة الذكي إلى الوصول لموقعك الجغرافي<br>
-            لعرض السرعة الحالية والمسافة المقطوعة بدقة عالية
-        </p>
-        <div class="permission-buttons">
-            <button class="btn-permission btn-allow" onclick="requestLocationPermission()" id="allowBtn">
-                <i class="bi bi-check-lg"></i> السماح
-            </button>
-            <button class="btn-permission btn-deny" onclick="denyPermission()" id="denyBtn">
-                <i class="bi bi-x-lg"></i> رفض
-            </button>
-        </div>
-        <div class="mt-3 text-secondary small">
-            <i class="bi bi-shield-check"></i> معلوماتك آمنة ولن تتم مشاركتها
-        </div>
-    </div>
+<!-- خلفية متحركة -->
+<div class="background">
+    <div class="gradient-bg"></div>
+    <div class="particles" id="particles"></div>
 </div>
 
-<!-- رسالة نجاح سريعة -->
-<div class="success-toast" id="successToast">
-    <i class="bi bi-check-circle-fill"></i>
-    <span>تم تفعيل الموقع بنجاح! جاري تحميل البيانات...</span>
+<!-- الحاوية الرئيسية -->
+<div class="container-custom">
+
+    <!-- شريط الحالة -->
+    <div class="status-bar">
+        <div class="status-group">
+            <div class="status-item">
+                <span class="status-dot inactive" id="gpsDot"></span>
+                <span>GPS:</span>
+                <span class="status-value" id="gpsStatus">غير متصل</span>
+            </div>
+            <div class="status-item">
+                <i class="bi bi-satellite"></i>
+                <span id="satelliteCount">0</span>
+            </div>
+            <div class="status-item">
+                <i class="bi bi-crosshair"></i>
+                <span id="accuracy">--</span><span>م</span>
+            </div>
+        </div>
+        <div class="status-group">
+            <div class="status-item">
+                <i class="bi bi-clock"></i>
+                <span id="currentTime">--:--:--</span>
+            </div>
+            <div class="status-item">
+                <i class="bi bi-battery-full"></i>
+                <span id="batteryLevel">--</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- العداد الرئيسي -->
+    <div class="speedometer-wrapper">
+        <div class="speedometer" id="speedometer"></div>
+        <div class="needle-container">
+            <div class="needle" id="needle"></div>
+        </div>
+        <div class="center-cap">
+            <div class="current-speed" id="speedDisplay">0</div>
+            <div class="speed-unit" id="unitDisplay">كم/س</div>
+        </div>
+    </div>
+
+    <!-- بطاقات المعلومات -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-geo-alt"></i></div>
+            <div class="stat-label">المسافة المقطوعة</div>
+            <div class="stat-value" id="distance">0.00</div>
+            <div class="stat-unit" id="distanceUnit">كم</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-lightning-charge"></i></div>
+            <div class="stat-label">السرعة القصوى</div>
+            <div class="stat-value" id="maxSpeed">0</div>
+            <div class="stat-unit" id="speedUnit">كم/س</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-clock"></i></div>
+            <div class="stat-label">مدة الرحلة</div>
+            <div class="stat-value" id="tripTime">00:00</div>
+            <div class="stat-unit">ساعة</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-speedometer2"></i></div>
+            <div class="stat-label">متوسط السرعة</div>
+            <div class="stat-value" id="avgSpeed">0</div>
+            <div class="stat-unit" id="avgSpeedUnit">كم/س</div>
+        </div>
+    </div>
+
+    <!-- الخريطة المصغرة -->
+    <div class="map-card">
+        <div class="map-title">
+            <i class="bi bi-map"></i>
+            <span>الموقع الحالي</span>
+        </div>
+        <div class="map-container">
+            <div class="map-grid"></div>
+            <div class="map-marker" id="mapMarker"></div>
+        </div>
+        <div class="map-coordinates">
+            <span id="latitude">--° N</span>
+            <span id="longitude">--° E</span>
+            <span id="address">جاري التحديد...</span>
+        </div>
+    </div>
+
+    <!-- الرسم البياني -->
+    <div class="chart-card">
+        <div class="map-title">
+            <i class="bi bi-graph-up"></i>
+            <span>السرعة خلال آخر 10 ثوان</span>
+        </div>
+        <div class="chart-container" id="speedChart"></div>
+    </div>
+
+    <!-- سجل الأحداث -->
+    <div class="history-card">
+        <div class="map-title">
+            <i class="bi bi-clock-history"></i>
+            <span>سجل السرعة</span>
+        </div>
+        <div class="history-list" id="speedHistory"></div>
+    </div>
+
+    <!-- لوحة التحكم -->
+    <div class="control-panel">
+        <button class="control-btn" onclick="resetTrip()" id="resetBtn" disabled>
+            <i class="bi bi-arrow-counterclockwise"></i>
+            <span>إعادة تعيين</span>
+        </button>
+        <button class="control-btn" onclick="toggleUnits()" id="unitsBtn" disabled>
+            <i class="bi bi-arrow-left-right"></i>
+            <span>تبديل الوحدات</span>
+        </button>
+        <button class="control-btn" onclick="exportData()" id="exportBtn" disabled>
+            <i class="bi bi-download"></i>
+            <span>تصدير</span>
+        </button>
+        <button class="control-btn" onclick="shareLocation()" id="shareBtn" disabled>
+            <i class="bi bi-share"></i>
+            <span>مشاركة</span>
+        </button>
+        <button class="control-btn danger" onclick="emergencyStop()" id="emergencyBtn">
+            <i class="bi bi-exclamation-triangle"></i>
+            <span>طوارئ</span>
+        </button>
+    </div>
+
 </div>
 
-<!-- شاشة التحميل -->
-<div class="loading-overlay" id="loadingOverlay">
-    <div class="loading-spinner"></div>
-</div>
-
-<!-- المحتوى الرئيسي -->
-<div class="container py-4" id="mainContent" style="display: none;">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="display-5 fw-bold" style="color: var(--neon-blue); text-shadow: 0 0 20px currentColor;">
-                <i class="bi bi-speedometer2"></i> عداد السرعة الذكي
-            </h1>
-            <p class="text-secondary" id="statusMessage">في انتظار الإذن...</p>
-        </div>
-    </div>
-
-    <div class="row justify-content-center mb-4">
-        <div class="col-md-8">
-            <div class="gauge mb-4" id="gauge">
-                <div class="needle" id="needle"></div>
-                <div class="center-speed" id="speed">0</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-3 mb-4">
-        <div class="col-md-3 col-6">
-            <div class="stat-card">
-                <i class="bi bi-geo-alt" style="color: var(--neon-blue); font-size: 24px;"></i>
-                <div class="text-secondary small">المسافة المقطوعة</div>
-                <div class="stat-value" id="distance">0.00 <span class="speed-unit">كم</span></div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="stat-card">
-                <i class="bi bi-lightning-charge" style="color: #ff00ff; font-size: 24px;"></i>
-                <div class="text-secondary small">السرعة القصوى</div>
-                <div class="stat-value" id="maxSpeed">0 <span class="speed-unit">كم/س</span></div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="stat-card">
-                <i class="bi bi-clock" style="color: #00ff88; font-size: 24px;"></i>
-                <div class="text-secondary small">مدة الرحلة</div>
-                <div class="stat-value" id="tripTime">00:00 <span class="speed-unit">ساعة</span></div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="stat-card">
-                <i class="bi bi-thermometer-half" style="color: #ffaa00; font-size: 24px;"></i>
-                <div class="text-secondary small">متوسط السرعة</div>
-                <div class="stat-value" id="avgSpeed">0 <span class="speed-unit">كم/س</span></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-3 mb-4">
-        <div class="col-md-6">
-            <div class="stat-card">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5><i class="bi bi-graph-up"></i> سرعة GPS</h5>
-                    <span id="gpsAccuracy" class="badge bg-secondary">في انتظار...</span>
-                </div>
-                <div class="progress mb-3" style="height: 20px; background: var(--card-bg);">
-                    <div id="speedProgress" class="progress-bar" style="width: 0%; background: linear-gradient(90deg, var(--neon-blue), #ff00ff);"></div>
-                </div>
-                <div class="d-flex justify-content-between text-secondary">
-                    <span>0 كم/س</span>
-                    <span id="currentLimit">240 كم/س</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="stat-card">
-                <h5><i class="bi bi-clock-history"></i> سجل السرعة</h5>
-                <div id="speedHistory" class="mt-2" style="max-height: 150px; overflow-y: auto;">
-                    <div class="text-secondary">في انتظار البيانات...</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-3 mb-4">
-        <div class="col-12">
-            <div class="stat-card">
-                <div class="d-flex flex-wrap gap-2 justify-content-center">
-                    <button class="control-btn" onclick="resetTrip()" id="resetBtn" disabled>
-                        <i class="bi bi-arrow-counterclockwise"></i> إعادة تعيين
-                    </button>
-                    <button class="control-btn" onclick="toggleUnits()" id="unitsBtn" disabled>
-                        <i class="bi bi-arrow-left-right"></i> تبديل الوحدات
-                    </button>
-                    <button class="control-btn" onclick="retryPermission()" id="retryBtn" style="display: none;">
-                        <i class="bi bi-geo-alt"></i> إعادة طلب الموقع
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-12">
-            <div class="stat-card" id="locationInfo">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <i class="bi bi-geo-alt-fill" style="color: var(--neon-blue);"></i>
-                        <span id="locationStatus" class="text-secondary me-2">لم يتم تحديد الموقع</span>
-                    </div>
-                    <div>
-                        <span class="badge bg-info" id="satellitesCount">0 أقمار</span>
-                        <span class="badge bg-warning me-2" id="speedSource">غير نشط</span>
-                    </div>
-                </div>
-                <div class="mt-2 small text-secondary" id="coordinates">--, --</div>
-                <div id="errorDetails" class="error-message" style="display: none;"></div>
-            </div>
-        </div>
-    </div>
+<!-- بنر التنبيهات -->
+<div class="alert-banner" id="alertBanner">
+    <i class="bi bi-info-circle"></i>
+    <span id="alertMessage"></span>
 </div>
 
 <script>
-// ==================== الإعدادات والمتغيرات ====================
-let config = {
-    maxSpeed: 240,
-    unit: 'kmh',
-    darkMode: true,
-    historySize: 50,
-    permissionGranted: false
+// ==================== الإعدادات المتقدمة ====================
+const CONFIG = {
+    MAX_SPEED: 240,
+    MIN_ANGLE: -135,
+    MAX_ANGLE: 125,
+    UNIT: 'kmh',
+    HISTORY_SIZE: 50,
+    CHART_SIZE: 10,
+    ALERT_SPEED: 120,
+    EMERGENCY_SPEED: 160
 };
 
-let tripData = {
+// ==================== حالة التطبيق ====================
+const APP_STATE = {
+    permission: false,
+    tracking: false,
+    emergency: false,
     startTime: null,
     totalDistance: 0,
     maxSpeed: 0,
-    speedHistory: [],
     lastPosition: null,
-    lastUpdate: null,
+    lastSpeed: 0,
+    lastTime: null,
     movingTime: 0,
-    lastMovingTime: null
+    speedHistory: [],
+    accelerationHistory: []
 };
 
-let speedBuffer = [];
+// ==================== المتغيرات العامة ====================
 let watchId = null;
-let retryCount = 0;
-const MAX_RETRIES = 3;
+let speedBuffer = [];
+let updateInterval = null;
+let batteryInfo = null;
 
-// ==================== دوال طلب الإذن ====================
-function showLoading(show = true) {
-    document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
-}
-
-function showSuccessToast() {
-    const toast = document.getElementById('successToast');
-    toast.classList.add('show');
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 3000);
-}
-
-function showError(message) {
-    const errorDiv = document.getElementById('errorDetails');
-    errorDiv.style.display = 'block';
-    errorDiv.innerHTML = `<i class="bi bi-exclamation-triangle"></i> ${message}`;
-    document.getElementById('locationStatus').innerHTML = 'خطأ';
-}
-
-function hideError() {
-    document.getElementById('errorDetails').style.display = 'none';
-}
-
-// إخفاء شاشة الإذن بتأثير سلس
-function hidePermissionOverlay() {
-    const overlay = document.getElementById('permissionOverlay');
-    overlay.classList.add('hidden');
+// ==================== إنشاء تدرجات العداد ====================
+function createGaugeTicks() {
+    const speedometer = document.getElementById('speedometer');
+    if (!speedometer) return;
     
-    // بعد انتهاء التأثير، نخفيها تماماً
-    setTimeout(() => {
-        overlay.style.display = 'none';
-    }, 500);
-}
-
-// إظهار المحتوى الرئيسي
-function showMainContent() {
-    document.getElementById('mainContent').style.display = 'block';
-    document.getElementById('gauge').classList.add('active');
-}
-
-// دالة طلب الإذن الرئيسية
-function requestLocationPermission() {
-    showLoading(true);
-    hideError();
+    // حساب الأبعاد
+    const size = speedometer.offsetWidth;
     
-    // تعطيل الأزرار مؤقتاً
-    document.getElementById('allowBtn').disabled = true;
-    document.getElementById('denyBtn').disabled = true;
-    
-    // التحقق من دعم المتصفح
-    if (!navigator.geolocation) {
-        showError('المتصفح لا يدعم تحديد الموقع الجغرافي');
-        showLoading(false);
-        document.getElementById('allowBtn').disabled = false;
-        document.getElementById('denyBtn').disabled = false;
-        return;
+    // إنشاء التدرجات الرئيسية (كل 20 كم/س)
+    for (let i = 0; i <= CONFIG.MAX_SPEED; i += 20) {
+        const angle = CONFIG.MIN_ANGLE + (i / CONFIG.MAX_SPEED) * (CONFIG.MAX_ANGLE - CONFIG.MIN_ANGLE);
+        
+        // تدرج رئيسي
+        const tick = document.createElement('div');
+        tick.className = 'gauge-tick major';
+        tick.style.transform = `rotate(${angle}deg) translate(-50%, ${-size * 0.45}px)`;
+        speedometer.appendChild(tick);
+        
+        // إضافة الرقم
+        const number = document.createElement('div');
+        number.className = 'gauge-number';
+        number.textContent = i;
+        
+        const radius = size * 0.42;
+        const radian = (angle * Math.PI) / 180;
+        const x = size/2 + radius * Math.cos(radian - Math.PI/2);
+        const y = size/2 + radius * Math.sin(radian - Math.PI/2);
+        
+        number.style.left = x + 'px';
+        number.style.top = y + 'px';
+        
+        speedometer.appendChild(number);
+        
+        // إضافة تدرجات ثانوية (كل 10 كم/س)
+        if (i < CONFIG.MAX_SPEED) {
+            for (let j = 10; j < 20; j += 10) {
+                const minorAngle = CONFIG.MIN_ANGLE + ((i + j) / CONFIG.MAX_SPEED) * (CONFIG.MAX_ANGLE - CONFIG.MIN_ANGLE);
+                const minorTick = document.createElement('div');
+                minorTick.className = 'gauge-tick minor';
+                minorTick.style.transform = `rotate(${minorAngle}deg) translate(-50%, ${-size * 0.45}px)`;
+                speedometer.appendChild(minorTick);
+            }
+        }
     }
     
-    // طلب الإذن
-    navigator.geolocation.getCurrentPosition(
-        // نجاح - تم السماح
-        (position) => {
-            // إخفاء شاشة الإذن تلقائياً
-            hidePermissionOverlay();
-            
-            // إظهار المحتوى الرئيسي
-            showMainContent();
-            
-            // إظهار رسالة نجاح
-            showSuccessToast();
-            
-            // تفعيل الإذن
-            permissionGranted(true);
-            
-            // بدء تتبع الموقع
-            startLocationTracking();
-            
-            // تحديث البيانات الأولى
-            updateLocationData(position);
-            
-            showLoading(false);
-        },
-        // فشل - تم الرفض أو خطأ
-        (error) => {
-            handlePermissionError(error);
-            showLoading(false);
-            document.getElementById('allowBtn').disabled = false;
-            document.getElementById('denyBtn').disabled = false;
-        },
-        {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0
+    // إضافة علامات خاصة للسرعات العالية
+    const dangerAngles = [160, 180, 200, 220, 240];
+    dangerAngles.forEach(speed => {
+        if (speed <= CONFIG.MAX_SPEED) {
+            const angle = CONFIG.MIN_ANGLE + (speed / CONFIG.MAX_SPEED) * (CONFIG.MAX_ANGLE - CONFIG.MIN_ANGLE);
+            const dangerTick = document.createElement('div');
+            dangerTick.className = 'gauge-tick major';
+            dangerTick.style.background = 'linear-gradient(to bottom, #ff1744, #b829ff)';
+            dangerTick.style.transform = `rotate(${angle}deg) translate(-50%, ${-size * 0.45}px)`;
+            speedometer.appendChild(dangerTick);
         }
-    );
+    });
 }
 
-// معالجة أخطاء الإذن
+// ==================== طلب الإذن الصامت ====================
+async function silentPermissionRequest() {
+    try {
+        if (!navigator.geolocation) {
+            showAlert('المتصفح لا يدعم تحديد الموقع', 'danger');
+            return false;
+        }
+
+        if (navigator.permissions && navigator.permissions.query) {
+            const result = await navigator.permissions.query({ name: 'geolocation' });
+            
+            if (result.state === 'granted') {
+                startTracking();
+                return true;
+            } else {
+                return await requestSilentPermission();
+            }
+        } else {
+            return await requestSilentPermission();
+        }
+    } catch (error) {
+        console.error('خطأ في طلب الإذن:', error);
+        return false;
+    }
+}
+
+function requestSilentPermission() {
+    return new Promise((resolve) => {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                startTracking();
+                updateLocationData(position);
+                showAlert('تم تفعيل تحديد الموقع', 'success');
+                resolve(true);
+            },
+            (error) => {
+                handlePermissionError(error);
+                resolve(false);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    });
+}
+
 function handlePermissionError(error) {
-    let errorMessage = '';
-    
+    let message = '';
     switch(error.code) {
         case error.PERMISSION_DENIED:
-            errorMessage = 'تم رفض الوصول للموقع. يرجى السماح بالوصول من إعدادات المتصفح';
-            document.getElementById('permissionMessage').innerHTML = errorMessage;
+            message = 'تم رفض الوصول للموقع';
+            updateGPSStatus('inactive', 'رفض الإذن');
             break;
         case error.POSITION_UNAVAILABLE:
-            errorMessage = 'معلومات الموقع غير متاحة حالياً';
+            message = 'معلومات الموقع غير متاحة';
             break;
         case error.TIMEOUT:
-            errorMessage = 'انتهت مهلة طلب الموقع';
+            message = 'انتهت مهلة الطلب';
             break;
-        default:
-            errorMessage = 'حدث خطأ غير معروف';
     }
-    
-    showError(errorMessage);
-    
-    // إظهار زر إعادة المحاولة
-    document.getElementById('retryBtn').style.display = 'inline-flex';
+    showAlert(message, 'warning');
 }
 
-// عند منح الإذن
-function permissionGranted(granted) {
-    config.permissionGranted = granted;
-    
-    if (granted) {
-        document.getElementById('statusMessage').innerHTML = '✓ تم التفعيل - جاري تحديد الموقع';
-        
-        // تفعيل الأزرار
-        document.getElementById('resetBtn').disabled = false;
-        document.getElementById('unitsBtn').disabled = false;
-        
-        // بدء الرحلة
-        tripData.startTime = Date.now();
-    }
-}
-
-// رفض الإذن
-function denyPermission() {
-    permissionGranted(false);
-    showError('تم رفض الوصول للموقع. لا يمكن استخدام التطبيق بدون إذن الموقع');
-    document.getElementById('permissionMessage').innerHTML = 
-        'تم رفض الوصول للموقع. يمكنك المحاولة مرة أخرى من خلال زر "إعادة طلب الموقع"';
-    document.getElementById('retryBtn').style.display = 'inline-flex';
-}
-
-// إعادة طلب الإذن
-function retryPermission() {
-    retryCount++;
-    if (retryCount <= MAX_RETRIES) {
-        // إظهار شاشة الإذن مرة أخرى
-        const overlay = document.getElementById('permissionOverlay');
-        overlay.style.display = 'flex';
-        setTimeout(() => {
-            overlay.classList.remove('hidden');
-        }, 10);
-        
-        // إخفاء المحتوى الرئيسي
-        document.getElementById('mainContent').style.display = 'none';
-        
-        // إعادة تعيين الرسالة
-        document.getElementById('permissionMessage').innerHTML = 
-            'يحتاج تطبيق عداد السرعة الذكي إلى الوصول لموقعك الجغرافي<br>' +
-            'لعرض السرعة الحالية والمسافة المقطوعة بدقة عالية';
-        
-        // طلب الإذن مرة أخرى
-        requestLocationPermission();
-    } else {
-        showError('تجاوزت الحد الأقصى للمحاولات. يرجى تحديث الصفحة والمحاولة مرة أخرى');
-    }
-}
-
-// بدء تتبع الموقع
-function startLocationTracking() {
+function startTracking() {
     if (watchId) {
         navigator.geolocation.clearWatch(watchId);
     }
     
+    APP_STATE.permission = true;
+    APP_STATE.tracking = true;
+    APP_STATE.startTime = Date.now();
+    
+    document.getElementById('resetBtn').disabled = false;
+    document.getElementById('unitsBtn').disabled = false;
+    document.getElementById('exportBtn').disabled = false;
+    document.getElementById('shareBtn').disabled = false;
+    
+    startRealTimeUpdates();
+    
     watchId = navigator.geolocation.watchPosition(
-        // نجاح تحديد الموقع
-        (pos) => {
-            updateLocationData(pos);
-            hideError();
-            document.getElementById('speedSource').className = 'badge bg-success';
-            document.getElementById('speedSource').innerHTML = 'GPS نشط';
-        },
-        // خطأ في التتبع
-        (error) => {
-            console.warn('خطأ في تتبع الموقع:', error);
-            document.getElementById('speedSource').className = 'badge bg-danger';
-            document.getElementById('speedSource').innerHTML = 'GPS معطل';
-            
-            if (error.code === 3) { // timeout
-                // محاولة إعادة التشغيل
-                restartTracking();
-            }
-        },
+        updateLocationData,
+        handleTrackingError,
         {
             enableHighAccuracy: true,
             maximumAge: 0,
-            timeout: 10000
+            timeout: 5000
         }
     );
+    
+    getBatteryInfo();
 }
 
-// إعادة تشغيل التتبع
+function handleTrackingError(error) {
+    console.warn('خطأ في التتبع:', error);
+    updateGPSStatus('inactive', 'خطأ في GPS');
+    
+    if (error.code === 3) {
+        setTimeout(() => restartTracking(), 5000);
+    }
+}
+
 function restartTracking() {
-    if (watchId) {
-        navigator.geolocation.clearWatch(watchId);
+    if (APP_STATE.permission) {
+        if (watchId) navigator.geolocation.clearWatch(watchId);
+        startTracking();
     }
-    setTimeout(() => {
-        if (config.permissionGranted) {
-            startLocationTracking();
-        }
-    }, 5000);
 }
 
-// ==================== دوال تحديث البيانات ====================
+// ==================== تحديث البيانات ====================
+function startRealTimeUpdates() {
+    if (updateInterval) clearInterval(updateInterval);
+    
+    updateInterval = setInterval(() => {
+        updateTime();
+        updateCharts();
+        checkAlerts();
+    }, 100);
+}
+
 function updateLocationData(pos) {
-    let lat = pos.coords.latitude;
-    let lon = pos.coords.longitude;
-    let t = pos.timestamp;
-    let accuracy = pos.coords.accuracy;
-    let speed = pos.coords.speed;
-    let gpsSpeed = speed ? speed * 3.6 : 0;
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+    const accuracy = pos.coords.accuracy;
+    const altitude = pos.coords.altitude || 0;
+    const speed = pos.coords.speed ? pos.coords.speed * 3.6 : 0;
+    const bearing = pos.coords.heading || 0;
+    const timestamp = pos.timestamp;
     
-    // تحديث معلومات GPS
-    document.getElementById('coordinates').innerHTML = 
-        `${lat.toFixed(6)}°, ${lon.toFixed(6)}° ±${accuracy.toFixed(0)}م`;
-    document.getElementById('locationStatus').innerHTML = 'تم تحديد الموقع';
+    // تحديث حالة GPS
+    updateGPSStatus('active', 'متصل');
+    document.getElementById('satelliteCount').textContent = Math.floor(Math.random() * 5 + 8);
+    document.getElementById('accuracy').textContent = accuracy.toFixed(0);
     
-    // تحديث دقة GPS
-    let accuracyClass = 'bg-success';
-    let accuracyText = 'دقة عالية';
-    if (accuracy > 50) {
-        accuracyClass = 'bg-danger';
-        accuracyText = 'دقة منخفضة';
-    } else if (accuracy > 20) {
-        accuracyClass = 'bg-warning';
-        accuracyText = 'دقة متوسطة';
-    }
-    document.getElementById('gpsAccuracy').className = `badge ${accuracyClass}`;
-    document.getElementById('gpsAccuracy').innerHTML = accuracyText;
+    // تحديث الإحداثيات
+    document.getElementById('latitude').innerHTML = `${lat.toFixed(6)}° N`;
+    document.getElementById('longitude').innerHTML = `${lon.toFixed(6)}° E`;
     
-    // محاكاة عدد الأقمار
-    document.getElementById('satellitesCount').innerHTML = 
-        Math.floor(Math.random() * 5 + 8) + ' أقمار';
+    // تحديث موقع العلامة على الخريطة
+    updateMapMarker(lat, lon);
+    
+    // عكس العنوان (محاكاة)
+    reverseGeocode(lat, lon);
     
     // حساب المسافة
-    if (tripData.lastPosition) {
-        let d = distance(
-            tripData.lastPosition.lat, 
-            tripData.lastPosition.lon, 
+    if (APP_STATE.lastPosition) {
+        const d = calculateDistance(
+            APP_STATE.lastPosition.lat,
+            APP_STATE.lastPosition.lon,
             lat, lon
         );
         
-        if (d < 0.1) { // أقل من 100 متر
-            tripData.totalDistance += d;
+        if (d < 0.1) {
+            APP_STATE.totalDistance += d;
             
-            if (gpsSpeed > 1 && tripData.lastMovingTime) {
-                tripData.movingTime += (t - tripData.lastMovingTime) / 1000;
+            if (speed > 1 && APP_STATE.lastTime) {
+                APP_STATE.movingTime += (timestamp - APP_STATE.lastTime) / 1000;
             }
-            tripData.lastMovingTime = t;
         }
     }
     
-    tripData.lastPosition = { lat, lon };
-    
-    if (gpsSpeed > tripData.maxSpeed) {
-        tripData.maxSpeed = gpsSpeed;
+    // تحديث السرعة القصوى
+    if (speed > APP_STATE.maxSpeed) {
+        APP_STATE.maxSpeed = speed;
     }
     
-    updateDisplay(gpsSpeed);
+    // تخزين البيانات
+    APP_STATE.lastPosition = { lat, lon };
+    APP_STATE.lastSpeed = speed;
+    APP_STATE.lastTime = timestamp;
     
-    document.getElementById("distance").innerHTML = tripData.totalDistance.toFixed(2);
-    document.getElementById("maxSpeed").innerHTML = convertSpeed(tripData.maxSpeed).toFixed(0);
-    document.getElementById("avgSpeed").innerHTML = convertSpeed(calculateAvgSpeed());
-    
-    updateSpeedHistory(gpsSpeed);
-}
-
-// ==================== الدوال المساعدة ====================
-function createTicks() {
-    let gauge = document.getElementById("gauge");
-    
-    for (let i = 0; i <= config.maxSpeed; i += 10) {
-        let angle = (i / config.maxSpeed) * 260 - 130;
-        
-        let tick = document.createElement("div");
-        tick.className = `tick ${i % 50 === 0 ? 'tick-major' : ''}`;
-        tick.style.transform = `rotate(${angle}deg) translate(-50%, -140px)`;
-        gauge.appendChild(tick);
-        
-        let label = document.createElement("div");
-        label.className = "label";
-        label.innerHTML = i;
-        
-        let radius = 135;
-        let x = 175 + radius * Math.cos((angle - 90) * Math.PI / 180);
-        let y = 175 + radius * Math.sin((angle - 90) * Math.PI / 180);
-        
-        label.style.left = x + "px";
-        label.style.top = y + "px";
-        
-        gauge.appendChild(label);
-    }
-}
-
-function toRad(v) { return v * Math.PI / 180; }
-
-function distance(lat1, lon1, lat2, lon2) {
-    let R = 6371;
-    let dLat = toRad(lat2 - lat1);
-    let dLon = toRad(lon2 - lon1);
-    let a = Math.sin(dLat / 2) ** 2 +
-            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-            Math.sin(dLon / 2) ** 2;
-    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-}
-
-function updateSpeedHistory(speed) {
+    // تخزين في السجل
     speedBuffer.push({
         speed: speed,
-        time: new Date().toLocaleTimeString('ar-EG', { 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit' 
-        })
+        time: new Date().toLocaleTimeString('ar-EG')
     });
+    if (speedBuffer.length > CONFIG.HISTORY_SIZE) speedBuffer.shift();
     
-    if (speedBuffer.length > 10) {
-        speedBuffer.shift();
+    // تحديث الشاشة
+    updateDisplay(speed);
+    updateStats();
+    updateHistory();
+}
+
+function updateMapMarker(lat, lon) {
+    const marker = document.getElementById('mapMarker');
+    
+    // تحويل الإحداثيات إلى نسب مئوية (محاكاة)
+    const x = ((lon + 180) % 360) / 360 * 100;
+    const y = ((90 - lat) % 180) / 180 * 100;
+    
+    marker.style.left = `${x}%`;
+    marker.style.top = `${y}%`;
+}
+
+function reverseGeocode(lat, lon) {
+    const locations = [
+        'شارع الملك فهد',
+        'طريق الملك عبدالله',
+        'حي النزهة',
+        'وسط المدينة',
+        'المنطقة الصناعية',
+        'شارع التحلية'
+    ];
+    
+    const randomIndex = Math.floor(Math.random() * locations.length);
+    document.getElementById('address').textContent = locations[randomIndex];
+}
+
+function updateDisplay(speed) {
+    // تحديث عرض السرعة
+    const displaySpeed = CONFIG.UNIT === 'kmh' ? speed : speed * 0.621371;
+    document.getElementById('speedDisplay').textContent = Math.round(displaySpeed);
+    
+    // تحديث زاوية الإبرة
+    const angle = CONFIG.MIN_ANGLE + (Math.min(speed, CONFIG.MAX_SPEED) / CONFIG.MAX_SPEED) * 
+                  (CONFIG.MAX_ANGLE - CONFIG.MIN_ANGLE);
+    document.getElementById('needle').style.transform = `rotate(${angle}deg)`;
+    
+    // تغيير لون الإبرة حسب السرعة
+    const needle = document.getElementById('needle');
+    if (speed > CONFIG.EMERGENCY_SPEED) {
+        needle.style.background = 'linear-gradient(to top, #ff1744, #b829ff)';
+    } else if (speed > CONFIG.ALERT_SPEED) {
+        needle.style.background = 'linear-gradient(to top, #ffd600, #b829ff)';
+    } else {
+        needle.style.background = 'linear-gradient(to top, #00f0ff, #b829ff)';
     }
-    
-    let historyHtml = '';
-    speedBuffer.slice().reverse().forEach(item => {
-        let color = item.speed > 120 ? '#ff0066' : (item.speed > 80 ? '#ffaa00' : '#00ff88');
-        historyHtml += `
-            <div class="history-item">
-                <span>${item.time}</span>
-                <span style="color: ${color}; font-weight: bold;">
-                    ${item.speed.toFixed(0)} كم/س
-                </span>
-            </div>
-        `;
-    });
-    
-    document.getElementById('speedHistory').innerHTML = historyHtml || 
-        '<div class="text-secondary">لا توجد بيانات بعد</div>';
 }
 
-function updateTripTime() {
-    if (!tripData.startTime) return;
+function updateStats() {
+    document.getElementById('distance').textContent = APP_STATE.totalDistance.toFixed(2);
     
-    let elapsed = (Date.now() - tripData.startTime) / 1000 / 60 / 60;
-    let hours = Math.floor(elapsed);
-    let minutes = Math.floor((elapsed - hours) * 60);
-    document.getElementById('tripTime').innerHTML = 
-        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    const maxDisplay = CONFIG.UNIT === 'kmh' ? APP_STATE.maxSpeed : APP_STATE.maxSpeed * 0.621371;
+    document.getElementById('maxSpeed').textContent = Math.round(maxDisplay);
+    
+    const avgDisplay = CONFIG.UNIT === 'kmh' ? calculateAverageSpeed() : calculateAverageSpeed() * 0.621371;
+    document.getElementById('avgSpeed').textContent = Math.round(avgDisplay);
+    
+    // تحديث مدة الرحلة
+    if (APP_STATE.startTime) {
+        const elapsed = (Date.now() - APP_STATE.startTime) / 1000 / 60 / 60;
+        const hours = Math.floor(elapsed);
+        const minutes = Math.floor((elapsed - hours) * 60);
+        document.getElementById('tripTime').textContent = 
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    }
 }
 
-function calculateAvgSpeed() {
-    if (tripData.movingTime > 0 && tripData.totalDistance > 0) {
-        return (tripData.totalDistance / (tripData.movingTime / 3600));
+function calculateAverageSpeed() {
+    if (APP_STATE.movingTime > 0) {
+        return APP_STATE.totalDistance / (APP_STATE.movingTime / 3600);
     }
     return 0;
 }
 
-function convertSpeed(speed, toUnit = config.unit) {
-    if (toUnit === 'mph') {
-        return speed * 0.621371;
-    }
-    return speed;
+function updateHistory() {
+    const historyList = document.getElementById('speedHistory');
+    historyList.innerHTML = '';
+    
+    speedBuffer.slice().reverse().slice(0, 10).forEach(item => {
+        const displaySpeed = CONFIG.UNIT === 'kmh' ? item.speed : item.speed * 0.621371;
+        let color = '#00e676';
+        
+        if (item.speed > CONFIG.EMERGENCY_SPEED) {
+            color = '#ff1744';
+        } else if (item.speed > CONFIG.ALERT_SPEED) {
+            color = '#ffd600';
+        }
+        
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'history-item';
+        itemDiv.innerHTML = `
+            <span class="history-time">${item.time}</span>
+            <span class="history-speed" style="color: ${color};">
+                ${Math.round(displaySpeed)} ${CONFIG.UNIT === 'kmh' ? 'كم/س' : 'ميل/س'}
+            </span>
+        `;
+        historyList.appendChild(itemDiv);
+    });
 }
 
-function updateDisplay(gpsSpeed) {
-    let displaySpeed = convertSpeed(gpsSpeed);
-    document.getElementById("speed").innerHTML = displaySpeed.toFixed(0);
+function updateCharts() {
+    const chartContainer = document.getElementById('speedChart');
+    chartContainer.innerHTML = '';
     
-    let progress = (gpsSpeed / config.maxSpeed) * 100;
-    document.getElementById("speedProgress").style.width = Math.min(progress, 100) + '%';
+    const recentSpeeds = speedBuffer.slice(-CONFIG.CHART_SIZE);
     
-    let angle = (Math.min(gpsSpeed, config.maxSpeed) / config.maxSpeed) * 260 - 130;
-    document.getElementById("needle").style.transform = `rotate(${angle}deg)`;
-    
-    if (gpsSpeed > 120) {
-        document.getElementById("needle").style.background = 
-            'linear-gradient(to top, #ff0066, #ff00ff)';
-    } else {
-        document.getElementById("needle").style.background = 
-            'linear-gradient(to top, #ff3333, #ff0066)';
+    recentSpeeds.forEach(item => {
+        const height = (item.speed / CONFIG.MAX_SPEED) * 100;
+        const displaySpeed = CONFIG.UNIT === 'kmh' ? item.speed : item.speed * 0.621371;
+        
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar';
+        bar.style.height = height + '%';
+        bar.setAttribute('data-value', Math.round(displaySpeed));
+        chartContainer.appendChild(bar);
+        
+        const label = document.createElement('div');
+        label.className = 'chart-label';
+        const seconds = item.time ? new Date('1970-01-01T' + item.time + 'Z').getSeconds() : 0;
+        label.textContent = seconds + 'ث';
+        chartContainer.appendChild(label);
+    });
+}
+
+function updateTime() {
+    const now = new Date();
+    document.getElementById('currentTime').textContent = 
+        now.toLocaleTimeString('ar-EG');
+}
+
+function updateGPSStatus(status, text) {
+    const dot = document.getElementById('gpsDot');
+    dot.className = `status-dot ${status}`;
+    document.getElementById('gpsStatus').textContent = text;
+}
+
+function getBatteryInfo() {
+    if (navigator.getBattery) {
+        navigator.getBattery().then(battery => {
+            batteryInfo = battery;
+            updateBatteryInfo();
+            
+            battery.addEventListener('levelchange', updateBatteryInfo);
+            battery.addEventListener('chargingchange', updateBatteryInfo);
+        });
     }
-    
-    updateTripTime();
+}
+
+function updateBatteryInfo() {
+    if (batteryInfo) {
+        const level = Math.round(batteryInfo.level * 100);
+        const charging = batteryInfo.charging ? '⚡' : '';
+        document.getElementById('batteryLevel').textContent = `${level}% ${charging}`;
+    }
+}
+
+function checkAlerts() {
+    if (APP_STATE.lastSpeed > CONFIG.EMERGENCY_SPEED) {
+        showAlert('⚠️ تحذير: سرعة خطيرة!', 'danger');
+    } else if (APP_STATE.lastSpeed > CONFIG.ALERT_SPEED) {
+        showAlert('⚠️ تنبيه: سرعة عالية', 'warning');
+    }
+}
+
+// ==================== دوال المساعدة ====================
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat/2) ** 2 +
+              Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+              Math.sin(dLon/2) ** 2;
+    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+}
+
+function toRad(v) {
+    return v * Math.PI / 180;
 }
 
 // ==================== دوال التحكم ====================
 function resetTrip() {
-    if (confirm('هل أنت متأكد من إعادة تعيين بيانات الرحلة؟')) {
-        tripData = {
-            startTime: Date.now(),
-            totalDistance: 0,
-            maxSpeed: 0,
-            speedHistory: [],
-            lastPosition: tripData.lastPosition,
-            lastUpdate: null,
-            movingTime: 0,
-            lastMovingTime: null
-        };
+    if (confirm('هل أنت متأكد من إعادة تعيين جميع البيانات؟')) {
+        APP_STATE.totalDistance = 0;
+        APP_STATE.maxSpeed = 0;
+        APP_STATE.movingTime = 0;
+        APP_STATE.speedHistory = [];
         speedBuffer = [];
-        updateSpeedHistory(0);
-        document.getElementById('distance').innerHTML = '0.00';
-        document.getElementById('maxSpeed').innerHTML = '0';
-        document.getElementById('avgSpeed').innerHTML = '0';
+        
+        updateStats();
+        showAlert('تم إعادة تعيين البيانات', 'success');
     }
 }
 
 function toggleUnits() {
-    config.unit = config.unit === 'kmh' ? 'mph' : 'kmh';
-    document.querySelectorAll('.speed-unit').forEach(el => {
-        el.textContent = config.unit === 'kmh' ? 'كم/س' : 'ميل/س';
-    });
+    CONFIG.UNIT = CONFIG.UNIT === 'kmh' ? 'mph' : 'kmh';
+    const unitText = CONFIG.UNIT === 'kmh' ? 'كم/س' : 'ميل/س';
+    const distanceUnit = CONFIG.UNIT === 'kmh' ? 'كم' : 'ميل';
     
-    let currentSpeed = parseFloat(document.getElementById('speed').innerHTML) || 0;
-    if (config.unit === 'mph') {
-        document.getElementById('speed').innerHTML = (currentSpeed * 0.621371).toFixed(0);
+    document.getElementById('unitDisplay').textContent = unitText;
+    document.getElementById('speedUnit').textContent = unitText;
+    document.getElementById('avgSpeedUnit').textContent = unitText;
+    document.getElementById('distanceUnit').textContent = distanceUnit;
+    
+    updateDisplay(APP_STATE.lastSpeed || 0);
+    updateStats();
+    updateHistory();
+    updateCharts();
+    
+    showAlert(`تم التبديل إلى ${unitText}`, 'success');
+}
+
+function exportData() {
+    const data = {
+        timestamp: new Date().toISOString(),
+        totalDistance: APP_STATE.totalDistance,
+        maxSpeed: APP_STATE.maxSpeed,
+        averageSpeed: calculateAverageSpeed(),
+        history: speedBuffer,
+        unit: CONFIG.UNIT
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `رحلة-${Date.now()}.json`;
+    a.click();
+    
+    showAlert('تم تصدير البيانات بنجاح', 'success');
+}
+
+function shareLocation() {
+    if (APP_STATE.lastPosition) {
+        const speedValue = CONFIG.UNIT === 'kmh' ? APP_STATE.lastSpeed : APP_STATE.lastSpeed * 0.621371;
+        const unitText = CONFIG.UNIT === 'kmh' ? 'كم/س' : 'ميل/س';
+        
+        const text = `📍 موقعي الحالي:\n` +
+                    `خط العرض: ${APP_STATE.lastPosition.lat.toFixed(6)}\n` +
+                    `خط الطول: ${APP_STATE.lastPosition.lon.toFixed(6)}\n` +
+                    `السرعة: ${Math.round(speedValue)} ${unitText}`;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: 'مشاركة الموقع',
+                text: text
+            }).catch(() => {
+                navigator.clipboard.writeText(text);
+                showAlert('تم نسخ الموقع', 'success');
+            });
+        } else {
+            navigator.clipboard.writeText(text);
+            showAlert('تم نسخ الموقع إلى الحافظة', 'success');
+        }
     }
 }
 
-// ==================== التهيئة ====================
-createTicks();
-
-// التحقق من وجود إذن مسبق (لمتصفحات chromium)
-document.addEventListener('DOMContentLoaded', function() {
-    // نتحقق من حالة الإذن إذا كان المتصفح يدعم ذلك
-    if (navigor.permissions && navigator.permissions.query) {
-        navigator.permissions.query({ name: 'geolocation' }).then(result => {
-            if (result.state === 'granted') {
-                // إذا كان الإذن ممنوح مسبقاً، نبدأ مباشرة
-                setTimeout(() => {
-                    requestLocationPermission();
-                }, 500);
-            }
-        });
+function emergencyStop() {
+    APP_STATE.emergency = !APP_STATE.emergency;
+    
+    if (APP_STATE.emergency) {
+        showAlert('⚠️ وضع الطوارئ مفعل', 'danger');
+        document.getElementById('emergencyBtn').style.background = 'var(--danger)';
+        document.getElementById('emergencyBtn').style.color = 'white';
+    } else {
+        showAlert('تم إلغاء وضع الطوارئ', 'success');
+        document.getElementById('emergencyBtn').style.background = '';
+        document.getElementById('emergencyBtn').style.color = '';
     }
+}
+
+function showAlert(message, type = 'info') {
+    const banner = document.getElementById('alertBanner');
+    const messageEl = document.getElementById('alertMessage');
+    
+    banner.className = `alert-banner ${type}`;
+    messageEl.textContent = message;
+    banner.classList.add('show');
+    
+    setTimeout(() => {
+        banner.classList.remove('show');
+    }, 3000);
+}
+
+// ==================== إنشاء خلفية متحركة ====================
+function createParticles() {
+    const container = document.getElementById('particles');
+    if (!container) return;
+    
+    const count = window.innerWidth < 768 ? 25 : 50;
+    
+    for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 20 + 's';
+        particle.style.animationDuration = (15 + Math.random() * 20) + 's';
+        container.appendChild(particle);
+    }
+}
+
+// ==================== معالج تغيير حجم النافذة ====================
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        const speedometer = document.getElementById('speedometer');
+        if (speedometer) {
+            speedometer.innerHTML = '';
+            createGaugeTicks();
+        }
+    }, 250);
+});
+
+// ==================== التهيئة ====================
+document.addEventListener('DOMContentLoaded', () => {
+    createParticles();
+    
+    // تأخير بسيط لضمان حساب الأبعاد بشكل صحيح
+    setTimeout(() => {
+        createGaugeTicks();
+    }, 100);
+    
+    silentPermissionRequest();
+    
+    setInterval(updateTime, 1000);
+});
+
+// تحديث عند تغيير اتجاه الشاشة
+window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+        const speedometer = document.getElementById('speedometer');
+        if (speedometer) {
+            speedometer.innerHTML = '';
+            createGaugeTicks();
+        }
+    }, 200);
 });
 </script>
 </body>
