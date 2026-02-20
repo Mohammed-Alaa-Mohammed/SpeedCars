@@ -30,6 +30,7 @@ body {
     text-align: center;
     min-height: 100vh;
     transition: all 0.3s ease;
+    position: relative;
 }
 
 /* شاشة طلب الإذن */
@@ -39,13 +40,20 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(2, 4, 10, 0.95);
-    backdrop-filter: blur(10px);
+    background: rgba(2, 4, 10, 0.98);
+    backdrop-filter: blur(15px);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 9999;
     animation: fadeIn 0.5s ease;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.permission-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .permission-card {
@@ -58,6 +66,12 @@ body {
     text-align: center;
     box-shadow: 0 0 50px var(--neon-blue);
     animation: slideUp 0.5s ease;
+    transform: translateY(0);
+    transition: transform 0.5s ease;
+}
+
+.permission-overlay.hidden .permission-card {
+    transform: translateY(-50px);
 }
 
 .permission-icon {
@@ -139,6 +153,7 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 9998;
+    transition: opacity 0.3s ease;
 }
 
 .loading-spinner {
@@ -150,20 +165,27 @@ body {
     animation: spin 1s linear infinite;
 }
 
-/* شريط التقدم */
-.progress-bar-custom {
-    width: 100%;
-    height: 8px;
-    background: var(--card-bg);
-    border-radius: 10px;
-    overflow: hidden;
-    margin: 10px 0;
+/* رسالة النجاح السريعة */
+.success-toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: linear-gradient(135deg, #00ff88, #00ccff);
+    color: var(--dark-bg);
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-weight: 600;
+    z-index: 10000;
+    box-shadow: 0 0 30px #00ff88;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
-    transition: width 0.3s ease;
+.success-toast.show {
+    transform: translateX(-50%) translateY(0);
 }
 
 /* باقي الأنماط */
@@ -176,6 +198,10 @@ body {
     background: radial-gradient(circle at 30% 30%, #1a1f30, #02040a);
     box-shadow: 0 0 30px var(--neon-blue), 0 0 60px rgba(0, 255, 242, 0.3), inset 0 0 50px rgba(0, 255, 242, 0.2);
     transition: box-shadow 0.3s ease;
+}
+
+.gauge.active {
+    box-shadow: 0 0 40px var(--neon-blue), 0 0 80px rgba(0, 255, 242, 0.4), inset 0 0 60px rgba(0, 255, 242, 0.3);
 }
 
 .needle {
@@ -218,6 +244,33 @@ body {
     text-shadow: 0 0 30px rgba(0, 255, 242, 0.5);
     z-index: 20;
     font-family: 'Digital', monospace;
+}
+
+.tick {
+    position: absolute;
+    width: 3px;
+    height: 15px;
+    background: linear-gradient(to bottom, #fff, var(--neon-blue));
+    top: 50%;
+    left: 50%;
+    transform-origin: bottom;
+    border-radius: 3px;
+}
+
+.tick-major {
+    width: 4px;
+    height: 25px;
+    background: linear-gradient(to bottom, #fff, #ff00ff);
+}
+
+.label {
+    position: absolute;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--neon-blue);
+    transform: translate(-50%, -50%);
+    text-shadow: 0 0 10px currentColor;
+    z-index: 5;
 }
 
 .stat-card {
@@ -268,15 +321,6 @@ body {
     border-color: #666;
 }
 
-.warning-light {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-left: 5px;
-    animation: pulse 1.5s infinite;
-}
-
 .history-item {
     background: rgba(0, 255, 242, 0.1);
     border-radius: 10px;
@@ -324,7 +368,6 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .gauge {
         width: 300px;
@@ -358,15 +401,15 @@ body {
             <i class="bi bi-geo-alt-fill"></i>
         </div>
         <h2 class="permission-title">طلب الوصول للموقع</h2>
-        <p class="permission-text">
+        <p class="permission-text" id="permissionMessage">
             يحتاج تطبيق عداد السرعة الذكي إلى الوصول لموقعك الجغرافي<br>
             لعرض السرعة الحالية والمسافة المقطوعة بدقة عالية
         </p>
         <div class="permission-buttons">
-            <button class="btn-permission btn-allow" onclick="requestLocationPermission()">
+            <button class="btn-permission btn-allow" onclick="requestLocationPermission()" id="allowBtn">
                 <i class="bi bi-check-lg"></i> السماح
             </button>
-            <button class="btn-permission btn-deny" onclick="denyPermission()">
+            <button class="btn-permission btn-deny" onclick="denyPermission()" id="denyBtn">
                 <i class="bi bi-x-lg"></i> رفض
             </button>
         </div>
@@ -374,6 +417,12 @@ body {
             <i class="bi bi-shield-check"></i> معلوماتك آمنة ولن تتم مشاركتها
         </div>
     </div>
+</div>
+
+<!-- رسالة نجاح سريعة -->
+<div class="success-toast" id="successToast">
+    <i class="bi bi-check-circle-fill"></i>
+    <span>تم تفعيل الموقع بنجاح! جاري تحميل البيانات...</span>
 </div>
 
 <!-- شاشة التحميل -->
@@ -439,10 +488,10 @@ body {
                     <h5><i class="bi bi-graph-up"></i> سرعة GPS</h5>
                     <span id="gpsAccuracy" class="badge bg-secondary">في انتظار...</span>
                 </div>
-                <div class="progress-bar-custom">
-                    <div id="speedProgress" class="progress-fill" style="width: 0%;"></div>
+                <div class="progress mb-3" style="height: 20px; background: var(--card-bg);">
+                    <div id="speedProgress" class="progress-bar" style="width: 0%; background: linear-gradient(90deg, var(--neon-blue), #ff00ff);"></div>
                 </div>
-                <div class="d-flex justify-content-between text-secondary mt-2">
+                <div class="d-flex justify-content-between text-secondary">
                     <span>0 كم/س</span>
                     <span id="currentLimit">240 كم/س</span>
                 </div>
@@ -468,7 +517,7 @@ body {
                     <button class="control-btn" onclick="toggleUnits()" id="unitsBtn" disabled>
                         <i class="bi bi-arrow-left-right"></i> تبديل الوحدات
                     </button>
-                    <button class="control-btn" onclick="retryPermission()" id="retryBtn">
+                    <button class="control-btn" onclick="retryPermission()" id="retryBtn" style="display: none;">
                         <i class="bi bi-geo-alt"></i> إعادة طلب الموقع
                     </button>
                 </div>
@@ -527,6 +576,14 @@ function showLoading(show = true) {
     document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
 }
 
+function showSuccessToast() {
+    const toast = document.getElementById('successToast');
+    toast.classList.add('show');
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
 function showError(message) {
     const errorDiv = document.getElementById('errorDetails');
     errorDiv.style.display = 'block';
@@ -538,15 +595,38 @@ function hideError() {
     document.getElementById('errorDetails').style.display = 'none';
 }
 
+// إخفاء شاشة الإذن بتأثير سلس
+function hidePermissionOverlay() {
+    const overlay = document.getElementById('permissionOverlay');
+    overlay.classList.add('hidden');
+    
+    // بعد انتهاء التأثير، نخفيها تماماً
+    setTimeout(() => {
+        overlay.style.display = 'none';
+    }, 500);
+}
+
+// إظهار المحتوى الرئيسي
+function showMainContent() {
+    document.getElementById('mainContent').style.display = 'block';
+    document.getElementById('gauge').classList.add('active');
+}
+
 // دالة طلب الإذن الرئيسية
 function requestLocationPermission() {
     showLoading(true);
     hideError();
     
+    // تعطيل الأزرار مؤقتاً
+    document.getElementById('allowBtn').disabled = true;
+    document.getElementById('denyBtn').disabled = true;
+    
     // التحقق من دعم المتصفح
     if (!navigator.geolocation) {
         showError('المتصفح لا يدعم تحديد الموقع الجغرافي');
         showLoading(false);
+        document.getElementById('allowBtn').disabled = false;
+        document.getElementById('denyBtn').disabled = false;
         return;
     }
     
@@ -554,14 +634,32 @@ function requestLocationPermission() {
     navigator.geolocation.getCurrentPosition(
         // نجاح - تم السماح
         (position) => {
+            // إخفاء شاشة الإذن تلقائياً
+            hidePermissionOverlay();
+            
+            // إظهار المحتوى الرئيسي
+            showMainContent();
+            
+            // إظهار رسالة نجاح
+            showSuccessToast();
+            
+            // تفعيل الإذن
             permissionGranted(true);
+            
+            // بدء تتبع الموقع
             startLocationTracking();
+            
+            // تحديث البيانات الأولى
+            updateLocationData(position);
+            
             showLoading(false);
         },
         // فشل - تم الرفض أو خطأ
         (error) => {
             handlePermissionError(error);
             showLoading(false);
+            document.getElementById('allowBtn').disabled = false;
+            document.getElementById('denyBtn').disabled = false;
         },
         {
             enableHighAccuracy: true,
@@ -578,6 +676,7 @@ function handlePermissionError(error) {
     switch(error.code) {
         case error.PERMISSION_DENIED:
             errorMessage = 'تم رفض الوصول للموقع. يرجى السماح بالوصول من إعدادات المتصفح';
+            document.getElementById('permissionMessage').innerHTML = errorMessage;
             break;
         case error.POSITION_UNAVAILABLE:
             errorMessage = 'معلومات الموقع غير متاحة حالياً';
@@ -590,20 +689,16 @@ function handlePermissionError(error) {
     }
     
     showError(errorMessage);
-    permissionGranted(false);
     
-    // عرض زر إعادة المحاولة
+    // إظهار زر إعادة المحاولة
     document.getElementById('retryBtn').style.display = 'inline-flex';
 }
 
-// عند منح الإذن أو رفضه
+// عند منح الإذن
 function permissionGranted(granted) {
     config.permissionGranted = granted;
     
     if (granted) {
-        // إخفاء شاشة الإذن وإظهار المحتوى
-        document.getElementById('permissionOverlay').style.display = 'none';
-        document.getElementById('mainContent').style.display = 'block';
         document.getElementById('statusMessage').innerHTML = '✓ تم التفعيل - جاري تحديد الموقع';
         
         // تفعيل الأزرار
@@ -612,10 +707,6 @@ function permissionGranted(granted) {
         
         // بدء الرحلة
         tripData.startTime = Date.now();
-    } else {
-        // إبقاء شاشة الإذن مع رسالة الخطأ
-        document.querySelector('.permission-text').innerHTML = 
-            'لم يتم منح الإذن للوصول للموقع. يرجى السماح بالوصول للمتابعة';
     }
 }
 
@@ -623,14 +714,31 @@ function permissionGranted(granted) {
 function denyPermission() {
     permissionGranted(false);
     showError('تم رفض الوصول للموقع. لا يمكن استخدام التطبيق بدون إذن الموقع');
+    document.getElementById('permissionMessage').innerHTML = 
+        'تم رفض الوصول للموقع. يمكنك المحاولة مرة أخرى من خلال زر "إعادة طلب الموقع"';
+    document.getElementById('retryBtn').style.display = 'inline-flex';
 }
 
 // إعادة طلب الإذن
 function retryPermission() {
     retryCount++;
     if (retryCount <= MAX_RETRIES) {
-        document.getElementById('permissionOverlay').style.display = 'flex';
+        // إظهار شاشة الإذن مرة أخرى
+        const overlay = document.getElementById('permissionOverlay');
+        overlay.style.display = 'flex';
+        setTimeout(() => {
+            overlay.classList.remove('hidden');
+        }, 10);
+        
+        // إخفاء المحتوى الرئيسي
         document.getElementById('mainContent').style.display = 'none';
+        
+        // إعادة تعيين الرسالة
+        document.getElementById('permissionMessage').innerHTML = 
+            'يحتاج تطبيق عداد السرعة الذكي إلى الوصول لموقعك الجغرافي<br>' +
+            'لعرض السرعة الحالية والمسافة المقطوعة بدقة عالية';
+        
+        // طلب الإذن مرة أخرى
         requestLocationPermission();
     } else {
         showError('تجاوزت الحد الأقصى للمحاولات. يرجى تحديث الصفحة والمحاولة مرة أخرى');
@@ -709,7 +817,7 @@ function updateLocationData(pos) {
     document.getElementById('gpsAccuracy').className = `badge ${accuracyClass}`;
     document.getElementById('gpsAccuracy').innerHTML = accuracyText;
     
-    // محاكاة عدد الأقمار (يمكن تحسينها)
+    // محاكاة عدد الأقمار
     document.getElementById('satellitesCount').innerHTML = 
         Math.floor(Math.random() * 5 + 8) + ' أقمار';
     
@@ -721,7 +829,6 @@ function updateLocationData(pos) {
             lat, lon
         );
         
-        // تجاهل القفزات غير المنطقية
         if (d < 0.1) { // أقل من 100 متر
             tripData.totalDistance += d;
             
@@ -734,20 +841,16 @@ function updateLocationData(pos) {
     
     tripData.lastPosition = { lat, lon };
     
-    // تحديث السرعة القصوى
     if (gpsSpeed > tripData.maxSpeed) {
         tripData.maxSpeed = gpsSpeed;
     }
     
-    // تحديث الشاشة
     updateDisplay(gpsSpeed);
     
-    // تحديث الإحصائيات
     document.getElementById("distance").innerHTML = tripData.totalDistance.toFixed(2);
     document.getElementById("maxSpeed").innerHTML = convertSpeed(tripData.maxSpeed).toFixed(0);
     document.getElementById("avgSpeed").innerHTML = convertSpeed(calculateAvgSpeed());
     
-    // تحديث السجل
     updateSpeedHistory(gpsSpeed);
 }
 
@@ -874,7 +977,7 @@ function resetTrip() {
             totalDistance: 0,
             maxSpeed: 0,
             speedHistory: [],
-            lastPosition: tripData.lastPosition, // نحتفظ بآخر موقع
+            lastPosition: tripData.lastPosition,
             lastUpdate: null,
             movingTime: 0,
             lastMovingTime: null
@@ -893,7 +996,6 @@ function toggleUnits() {
         el.textContent = config.unit === 'kmh' ? 'كم/س' : 'ميل/س';
     });
     
-    // تحديث الشاشة
     let currentSpeed = parseFloat(document.getElementById('speed').innerHTML) || 0;
     if (config.unit === 'mph') {
         document.getElementById('speed').innerHTML = (currentSpeed * 0.621371).toFixed(0);
@@ -901,13 +1003,21 @@ function toggleUnits() {
 }
 
 // ==================== التهيئة ====================
-// إنشاء تدرجات العداد
 createTicks();
 
-// التحقق من الإذن المخزن مسبقاً
+// التحقق من وجود إذن مسبق (لمتصفحات chromium)
 document.addEventListener('DOMContentLoaded', function() {
-    // نتحقق مما إذا كان الإذن مخزن مسبقاً (هذا يتطلب API متقدم)
-    // بشكل افتراضي نظهر شاشة طلب الإذن
+    // نتحقق من حالة الإذن إذا كان المتصفح يدعم ذلك
+    if (navigor.permissions && navigator.permissions.query) {
+        navigator.permissions.query({ name: 'geolocation' }).then(result => {
+            if (result.state === 'granted') {
+                // إذا كان الإذن ممنوح مسبقاً، نبدأ مباشرة
+                setTimeout(() => {
+                    requestLocationPermission();
+                }, 500);
+            }
+        });
+    }
 });
 </script>
 </body>
