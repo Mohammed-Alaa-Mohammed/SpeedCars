@@ -1,1696 +1,1593 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
-<meta name="theme-color" content="#00f0ff">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-<title>عدّاد السرعة الفاخر | VeloxPro</title>
-<style>
-/* ===== متغيرات CSS المدعومة في جميع المتصفحات ===== */
-:root {
-    --primary: #00f0ff;
-    --primary-glow: rgba(0, 240, 255, 0.5);
-    --secondary: #b829ff;
-    --secondary-glow: rgba(184, 41, 255, 0.5);
-    --success: #00e676;
-    --warning: #ffd600;
-    --danger: #ff1744;
-    --dark: #0b0c15;
-    --darker: #05060a;
-    --card-bg: rgba(18, 22, 35, 0.8);
-    --card-border: rgba(0, 240, 255, 0.15);
-    --text-primary: #ffffff;
-    --text-secondary: rgba(255, 255, 255, 0.7);
-    --text-dim: rgba(255, 255, 255, 0.4);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
+    <meta name="theme-color" content="#00ffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>عداد السرعة مع الإنذار الصوتي | VeloxPro Audio</title>
     
-    /* متغيرات للشاشات المختلفة */
-    --gauge-size-desktop: min(600px, 80vw);
-    --gauge-size-mobile: min(350px, 85vw);
-    --center-size-desktop: 140px;
-    --center-size-mobile: 100px;
-    --font-size-large-desktop: 58px;
-    --font-size-large-mobile: 42px;
-}
-
-/* ===== إعادة تعيين CSS ===== */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
-
-/* ===== الإعدادات العامة ===== */
-html, body {
-    width: 100%;
-    min-height: 100vh;
-    overflow-x: hidden;
-    position: relative;
-    scroll-behavior: smooth;
-}
-
-body {
-    background: var(--darker);
-    color: var(--text-primary);
-    font-family: 'Tajawal', sans-serif;
-    line-height: 1.6;
-    direction: rtl;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-/* ===== خلفية متحركة محسنة ===== */
-.background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    pointer-events: none;
-}
-
-.gradient-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at 20% 30%, rgba(0, 240, 255, 0.08) 0%, transparent 60%),
-                radial-gradient(circle at 80% 70%, rgba(184, 41, 255, 0.08) 0%, transparent 60%),
-                linear-gradient(145deg, var(--darker) 0%, #0f121f 50%, var(--darker) 100%);
-}
-
-.particles {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
-.particle {
-    position: absolute;
-    width: clamp(1px, 0.15vw, 3px);
-    height: clamp(1px, 0.15vw, 3px);
-    background: var(--primary);
-    border-radius: 50%;
-    box-shadow: 0 0 calc(clamp(5px, 1vw, 15px)) var(--primary);
-    opacity: 0.4;
-    animation: float linear infinite;
-    will-change: transform;
-}
-
-@keyframes float {
-    0% {
-        transform: translateY(100vh) translateX(0);
-        opacity: 0;
-    }
-    10% {
-        opacity: 0.4;
-    }
-    90% {
-        opacity: 0.4;
-    }
-    100% {
-        transform: translateY(-100vh) translateX(calc(clamp(20px, 5vw, 100px)));
-        opacity: 0;
-    }
-}
-
-/* ===== الحاوية الرئيسية المتجاوبة ===== */
-.container-custom {
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: clamp(10px, 3vw, 30px);
-    position: relative;
-    z-index: 1;
-}
-
-/* ===== شريط الحالة المحسن ===== */
-.status-bar {
-    background: rgba(18, 22, 35, 0.7);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid var(--card-border);
-    border-radius: clamp(40px, 6vw, 60px);
-    padding: clamp(10px, 2vw, 15px) clamp(15px, 3vw, 25px);
-    margin-bottom: clamp(15px, 4vh, 30px);
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: clamp(10px, 2vw, 20px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-.status-group {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: clamp(10px, 3vw, 30px);
-}
-
-.status-item {
-    display: flex;
-    align-items: center;
-    gap: clamp(5px, 1vw, 10px);
-    font-size: clamp(12px, 2.5vw, 14px);
-    color: var(--text-secondary);
-    white-space: nowrap;
-}
-
-.status-dot {
-    width: clamp(8px, 1.5vw, 10px);
-    height: clamp(8px, 1.5vw, 10px);
-    border-radius: 50%;
-    position: relative;
-    flex-shrink: 0;
-}
-
-.status-dot.active {
-    background: var(--success);
-    box-shadow: 0 0 calc(clamp(10px, 2vw, 20px)) var(--success);
-    animation: pulse 2s infinite;
-}
-
-.status-dot.warning {
-    background: var(--warning);
-    box-shadow: 0 0 calc(clamp(10px, 2vw, 20px)) var(--warning);
-}
-
-.status-dot.danger {
-    background: var(--danger);
-    box-shadow: 0 0 calc(clamp(10px, 2vw, 20px)) var(--danger);
-}
-
-.status-dot.inactive {
-    background: var(--text-dim);
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.2); }
-}
-
-.status-value {
-    color: var(--text-primary);
-    font-weight: 700;
-    margin-left: 5px;
-}
-
-/* ===== العداد الرئيسي المتجاوب ===== */
-.speedometer-wrapper {
-    position: relative;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: clamp(10px, 3vh, 30px) 0;
-}
-
-.speedometer {
-    position: relative;
-    width: var(--gauge-size-desktop);
-    height: var(--gauge-size-desktop);
-    max-width: 600px;
-    max-height: 600px;
-    aspect-ratio: 1/1;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.05), transparent 70%),
-                linear-gradient(145deg, var(--card-bg), var(--darker));
-    box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.5),
-        inset 0 0 calc(clamp(50px, 10vw, 100px)) rgba(0, 240, 255, 0.15),
-        inset 0 0 calc(clamp(30px, 5vw, 50px)) rgba(184, 41, 255, 0.1);
-    border: 1px solid rgba(0, 240, 255, 0.2);
-}
-
-@media (max-width: 768px) {
-    .speedometer {
-        width: var(--gauge-size-mobile);
-        height: var(--gauge-size-mobile);
-    }
-}
-
-.speedometer::before {
-    content: '';
-    position: absolute;
-    top: 3%;
-    left: 3%;
-    right: 3%;
-    bottom: 3%;
-    border-radius: 50%;
-    background: radial-gradient(circle at 70% 70%, rgba(0, 240, 255, 0.1), transparent 70%);
-    border: 1px solid rgba(0, 240, 255, 0.1);
-}
-
-.speedometer::after {
-    content: '';
-    position: absolute;
-    top: 7%;
-    left: 7%;
-    right: 7%;
-    bottom: 7%;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, rgba(184, 41, 255, 0.1), transparent 70%);
-    border: 1px solid rgba(184, 41, 255, 0.1);
-}
-
-/* تدرجات العداد المحسنة */
-.gauge-tick {
-    position: absolute;
-    width: max(0.2vw, 2px);
-    height: min(3vw, 25px);
-    background: linear-gradient(to bottom, var(--primary), var(--secondary));
-    top: 50%;
-    left: 50%;
-    transform-origin: bottom;
-    border-radius: 4px;
-    box-shadow: 0 0 calc(clamp(5px, 1vw, 10px)) var(--primary);
-    opacity: 0.5;
-    will-change: transform;
-}
-
-.gauge-tick.major {
-    width: max(0.3vw, 4px);
-    height: min(4vw, 35px);
-    opacity: 1;
-    background: linear-gradient(to bottom, #fff, var(--primary));
-}
-
-.gauge-tick.minor {
-    width: max(0.15vw, 1.5px);
-    height: min(2vw, 15px);
-    opacity: 0.3;
-}
-
-/* أرقام العداد المتجاوبة */
-.gauge-number {
-    position: absolute;
-    font-size: clamp(12px, 3vw, 18px);
-    font-weight: 900;
-    color: var(--text-secondary);
-    text-shadow: 0 0 calc(clamp(5px, 1vw, 10px)) var(--primary);
-    transform: translate(-50%, -50%);
-    white-space: nowrap;
-    font-family: 'Tajawal', sans-serif;
-    transition: all 0.3s ease;
-    pointer-events: none;
-}
-
-@media (max-width: 480px) {
-    .gauge-number {
-        font-size: 10px;
-        font-weight: 700;
-    }
-}
-
-/* الإبرة المحسنة */
-.needle-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 10;
-    pointer-events: none;
-}
-
-.needle {
-    position: absolute;
-    width: max(0.4vw, 6px);
-    height: 45%;
-    background: linear-gradient(to top, var(--danger), var(--secondary));
-    top: 50%;
-    left: 50%;
-    transform-origin: bottom;
-    transform: rotate(-135deg);
-    border-radius: 8px 8px 0 0;
-    box-shadow: 0 0 calc(clamp(15px, 3vw, 30px)) var(--secondary);
-    transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2);
-    will-change: transform;
-}
-
-.needle::before {
-    content: '';
-    position: absolute;
-    top: -8%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(3vw, 20px);
-    height: min(3vw, 20px);
-    background: radial-gradient(circle, var(--primary), var(--secondary));
-    border-radius: 50%;
-    box-shadow: 0 0 calc(clamp(15px, 3vw, 30px)) var(--primary);
-}
-
-.needle::after {
-    content: '';
-    position: absolute;
-    bottom: -10%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(6vw, 40px);
-    height: min(6vw, 40px);
-    background: radial-gradient(circle, rgba(255,255,255,0.2), transparent 70%);
-    border-radius: 50%;
-    z-index: -1;
-}
-
-/* مركز العداد المتجاوب */
-.center-cap {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: min(25%, 140px);
-    height: min(25%, 140px);
-    min-width: 80px;
-    min-height: 80px;
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), var(--dark));
-    border-radius: 50%;
-    border: 2px solid rgba(0, 240, 255, 0.3);
-    box-shadow: 0 0 calc(clamp(30px, 5vw, 50px)) var(--primary-glow);
-    z-index: 20;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 5px;
-}
-
-.current-speed {
-    font-size: clamp(28px, 8vw, 58px);
-    font-weight: 900;
-    background: linear-gradient(135deg, #fff, var(--primary));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    line-height: 1;
-    font-family: 'Tajawal', sans-serif;
-    text-align: center;
-}
-
-.speed-unit {
-    font-size: clamp(12px, 3vw, 18px);
-    color: var(--text-secondary);
-    margin-top: 5px;
-}
-
-/* ===== شبكة البطاقات المتجاوبة ===== */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: clamp(10px, 2vw, 20px);
-    margin: clamp(15px, 4vh, 30px) 0;
-}
-
-@media (max-width: 992px) {
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 480px) {
-    .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-}
-
-.stat-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(10px) saturate(180%);
-    -webkit-backdrop-filter: blur(10px) saturate(180%);
-    border: 1px solid var(--card-border);
-    border-radius: clamp(15px, 3vw, 30px);
-    padding: clamp(15px, 3vw, 25px);
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.stat-card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(0,240,255,0.1), transparent 70%);
-    opacity: 0;
-    transition: opacity 0.5s;
-    pointer-events: none;
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--primary);
-    box-shadow: 0 15px 30px rgba(0, 240, 255, 0.15);
-}
-
-.stat-icon {
-    font-size: clamp(24px, 5vw, 32px);
-    margin-bottom: 10px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-}
-
-.stat-label {
-    color: var(--text-secondary);
-    font-size: clamp(12px, 2vw, 14px);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-}
-
-.stat-value {
-    font-size: clamp(28px, 6vw, 42px);
-    font-weight: 900;
-    background: linear-gradient(135deg, #fff, var(--primary));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    line-height: 1.2;
-    font-family: 'Tajawal', sans-serif;
-    word-break: break-word;
-}
-
-.stat-unit {
-    font-size: clamp(12px, 2.5vw, 16px);
-    color: var(--text-secondary);
-    margin-right: 5px;
-}
-
-/* ===== بطاقة الخريطة المتجاوبة ===== */
-.map-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(10px) saturate(180%);
-    -webkit-backdrop-filter: blur(10px) saturate(180%);
-    border: 1px solid var(--card-border);
-    border-radius: clamp(15px, 3vw, 30px);
-    padding: clamp(15px, 3vw, 25px);
-    margin: clamp(15px, 4vh, 30px) 0;
-}
-
-.map-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-    color: var(--text-secondary);
-    font-size: clamp(14px, 3vw, 16px);
-}
-
-.map-title i {
-    color: var(--primary);
-    font-size: clamp(16px, 4vw, 20px);
-}
-
-.map-container {
-    position: relative;
-    width: 100%;
-    height: clamp(150px, 40vh, 300px);
-    border-radius: clamp(10px, 2vw, 20px);
-    overflow: hidden;
-    background: linear-gradient(145deg, var(--darker), #000);
-    border: 1px solid var(--card-border);
-}
-
-.map-grid {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-        linear-gradient(rgba(0,240,255,0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,240,255,0.1) 1px, transparent 1px);
-    background-size: min(30px, 5vw) min(30px, 5vw);
-}
-
-.map-marker {
-    position: absolute;
-    width: clamp(15px, 4vw, 20px);
-    height: clamp(15px, 4vw, 20px);
-    background: var(--primary);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 clamp(20px, 5vw, 40px) var(--primary);
-    transition: all 0.5s ease;
-    z-index: 10;
-}
-
-.map-marker::before {
-    content: '';
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, var(--primary-glow), transparent 70%);
-    top: -50%;
-    left: -50%;
-    border-radius: 50%;
-    animation: ping 2s infinite;
-}
-
-.map-marker::after {
-    content: '';
-    position: absolute;
-    width: 30%;
-    height: 30%;
-    background: white;
-    border-radius: 50%;
-    top: 35%;
-    left: 35%;
-}
-
-@keyframes ping {
-    0%, 100% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.5); opacity: 0; }
-}
-
-.map-coordinates {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 15px;
-    color: var(--text-secondary);
-    font-size: clamp(12px, 2.5vw, 14px);
-    direction: ltr;
-}
-
-/* ===== الرسم البياني المتجاوب ===== */
-.chart-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(10px) saturate(180%);
-    -webkit-backdrop-filter: blur(10px) saturate(180%);
-    border: 1px solid var(--card-border);
-    border-radius: clamp(15px, 3vw, 30px);
-    padding: clamp(15px, 3vw, 25px);
-    margin: clamp(15px, 4vh, 30px) 0;
-}
-
-.chart-container {
-    width: 100%;
-    height: clamp(120px, 25vh, 200px);
-    display: flex;
-    align-items: flex-end;
-    gap: max(3px, 0.5vw);
-    margin-top: 20px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 5px;
-    scrollbar-width: thin;
-}
-
-.chart-bar {
-    flex: 1 0 auto;
-    min-width: clamp(25px, 8vw, 40px);
-    background: linear-gradient(to top, var(--primary), var(--secondary));
-    border-radius: 8px 8px 0 0;
-    transition: height 0.3s ease;
-    position: relative;
-    cursor: pointer;
-}
-
-.chart-bar:hover {
-    filter: brightness(1.2);
-    transform: scaleY(1.05);
-}
-
-.chart-bar::after {
-    content: attr(data-value);
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: clamp(10px, 2vw, 12px);
-    color: var(--primary);
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.chart-label {
-    text-align: center;
-    font-size: clamp(10px, 2vw, 12px);
-    color: var(--text-secondary);
-    margin-top: 5px;
-    min-width: clamp(25px, 8vw, 40px);
-}
-
-/* ===== سجل الأحداث المتجاوب ===== */
-.history-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(10px) saturate(180%);
-    -webkit-backdrop-filter: blur(10px) saturate(180%);
-    border: 1px solid var(--card-border);
-    border-radius: clamp(15px, 3vw, 30px);
-    padding: clamp(15px, 3vw, 25px);
-    margin: clamp(15px, 4vh, 30px) 0;
-}
-
-.history-list {
-    max-height: clamp(150px, 40vh, 250px);
-    overflow-y: auto;
-    padding: 5px;
-    scrollbar-width: thin;
-}
-
-.history-item {
-    background: rgba(0, 240, 255, 0.05);
-    border: 1px solid var(--card-border);
-    border-radius: clamp(10px, 2vw, 15px);
-    padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 18px);
-    margin: 5px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.3s ease;
-    font-size: clamp(12px, 2.5vw, 14px);
-}
-
-.history-item:hover {
-    background: rgba(0, 240, 255, 0.1);
-    transform: translateX(-5px);
-    border-color: var(--primary);
-}
-
-.history-time {
-    color: var(--primary);
-    font-family: monospace;
-}
-
-.history-speed {
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 20px;
-    background: rgba(0,240,255,0.1);
-}
-
-/* ===== لوحة التحكم المتجاوبة ===== */
-.control-panel {
-    display: flex;
-    flex-wrap: wrap;
-    gap: clamp(8px, 2vw, 15px);
-    justify-content: center;
-    margin: clamp(20px, 5vh, 40px) 0;
-}
-
-.control-btn {
-    background: var(--card-bg);
-    backdrop-filter: blur(10px) saturate(180%);
-    -webkit-backdrop-filter: blur(10px) saturate(180%);
-    border: 1px solid var(--card-border);
-    color: var(--text-primary);
-    padding: clamp(10px, 2vw, 15px) clamp(15px, 3vw, 30px);
-    border-radius: clamp(25px, 5vw, 60px);
-    font-size: clamp(14px, 2.5vw, 16px);
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(5px, 1.5vw, 12px);
-    position: relative;
-    overflow: hidden;
-    min-width: max(120px, 25vw);
-    flex: 0 1 auto;
-}
-
-@media (max-width: 480px) {
-    .control-btn {
-        width: 100%;
-        min-width: auto;
-    }
-}
-
-.control-btn::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(0, 240, 255, 0.2);
-    transform: translate(-50%, -50%);
-    transition: width 0.5s, height 0.5s;
-}
-
-.control-btn:hover::before {
-    width: 300%;
-    height: 300%;
-}
-
-.control-btn:hover {
-    border-color: var(--primary);
-    box-shadow: 0 0 clamp(15px, 3vw, 30px) var(--primary-glow);
-    transform: translateY(-2px);
-}
-
-.control-btn.primary {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    color: var(--darker);
-    border: none;
-}
-
-.control-btn.primary:hover {
-    box-shadow: 0 0 clamp(20px, 4vw, 40px) var(--primary);
-}
-
-.control-btn.danger {
-    border-color: var(--danger);
-    color: var(--danger);
-}
-
-.control-btn.danger:hover {
-    background: var(--danger);
-    color: white;
-    box-shadow: 0 0 clamp(20px, 4vw, 40px) var(--danger);
-}
-
-.control-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    border-color: var(--text-dim);
-}
-
-/* ===== بنر التنبيهات المحسن ===== */
-.alert-banner {
-    position: fixed;
-    top: max(10px, 3vh);
-    right: max(10px, 3vw);
-    left: max(10px, 3vw);
-    max-width: 400px;
-    margin: 0 auto;
-    background: var(--card-bg);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid var(--primary);
-    border-radius: clamp(30px, 5vw, 60px);
-    padding: clamp(10px, 2vw, 15px) clamp(15px, 3vw, 25px);
-    display: flex;
-    align-items: center;
-    gap: clamp(10px, 2vw, 15px);
-    color: var(--primary);
-    font-weight: 700;
-    font-size: clamp(14px, 3vw, 16px);
-    transform: translateY(-200%);
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    z-index: 10000;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    direction: rtl;
-}
-
-.alert-banner.show {
-    transform: translateY(0);
-}
-
-.alert-banner.warning {
-    border-color: var(--warning);
-    color: var(--warning);
-}
-
-.alert-banner.danger {
-    border-color: var(--danger);
-    color: var(--danger);
-}
-
-.alert-banner.success {
-    border-color: var(--success);
-    color: var(--success);
-}
-
-.alert-banner i {
-    font-size: clamp(16px, 4vw, 20px);
-    flex-shrink: 0;
-}
-
-.alert-banner span {
-    flex: 1;
-    word-break: break-word;
-}
-
-/* ===== تخصيص شريط التمرير ===== */
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--darker);
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, var(--secondary), var(--primary));
-}
-
-/* ===== تحسينات للأجهزة التي تعمل باللمس ===== */
-@media (hover: none) and (pointer: coarse) {
-    .stat-card:hover,
-    .control-btn:hover,
-    .history-item:hover {
-        transform: none;
-    }
+    <!-- Bootstrap RTL -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
-    .control-btn {
-        -webkit-tap-highlight-color: rgba(0, 240, 255, 0.3);
-    }
-}
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        /* ===== متغيرات CSS المتطورة ===== */
+        :root {
+            --primary: #00ffff;
+            --primary-dark: #0088ff;
+            --primary-glow: rgba(0, 255, 255, 0.6);
+            --secondary: #ff44aa;
+            --secondary-glow: rgba(255, 68, 170, 0.6);
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff3300;
+            --danger-glow: rgba(255, 51, 0, 0.8);
+            
+            --bg-deep: #0a0a20;
+            --bg-dark: #151530;
+            --bg-card: rgba(25, 25, 50, 0.85);
+            --bg-card-hover: rgba(35, 35, 70, 0.95);
+            
+            --text-bright: #ffffff;
+            --text-primary: #eeeeff;
+            --text-secondary: #aaaaff;
+            --text-dim: #666699;
+            
+            --font-size-xs: clamp(0.6rem, 1.5vw, 0.8rem);
+            --font-size-sm: clamp(0.8rem, 2vw, 1rem);
+            --font-size-md: clamp(1rem, 2.5vw, 1.2rem);
+            --font-size-lg: clamp(1.2rem, 3vw, 1.5rem);
+            --font-size-xl: clamp(1.5rem, 4vw, 2rem);
+            --font-size-xxl: clamp(2rem, 5vw, 3rem);
+            --font-size-xxxl: clamp(3rem, 8vw, 5rem);
+            
+            --spacing-xs: clamp(5px, 1vw, 8px);
+            --spacing-sm: clamp(8px, 1.5vw, 12px);
+            --spacing-md: clamp(12px, 2vw, 20px);
+            --spacing-lg: clamp(20px, 3vw, 30px);
+            --spacing-xl: clamp(30px, 4vw, 50px);
+            
+            --border-radius-sm: clamp(10px, 2vw, 15px);
+            --border-radius-md: clamp(15px, 3vw, 25px);
+            --border-radius-lg: clamp(25px, 4vw, 40px);
+            --border-radius-xl: clamp(40px, 6vw, 80px);
+            
+            --gauge-size: clamp(300px, 80vw, 700px);
+            --gauge-center: clamp(80px, 20%, 180px);
+        }
 
-/* ===== دعم الوضع الأفقي ===== */
-@media (orientation: landscape) and (max-height: 500px) {
-    .speedometer-wrapper {
-        max-width: 40vh;
-        margin: 10px auto;
-    }
-    
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .control-panel {
-        flex-wrap: wrap;
-    }
-}
+        /* ===== إعادة تعيين متقدمة ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-/* ===== تحسينات للشاشات الصغيرة جداً ===== */
-@media (max-width: 320px) {
-    .status-item {
-        font-size: 11px;
-    }
-    
-    .gauge-number {
-        font-size: 8px;
-    }
-    
-    .current-speed {
-        font-size: 24px;
-    }
-}
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
 
-/* ===== تحسينات للشاشات الكبيرة جداً ===== */
-@media (min-width: 2000px) {
-    .container-custom {
-        max-width: 1800px;
-    }
-    
-    .speedometer {
-        width: 800px;
-        height: 800px;
-    }
-    
-    .gauge-number {
-        font-size: 24px;
-    }
-}
-</style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            line-height: 1.5;
+            direction: rtl;
+            font-size: var(--font-size-md);
+        }
+
+        /* ===== خلفية كونية متحركة ===== */
+        .cosmic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(ellipse at 50% 50%, #1a1a4a, #050510);
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 10px 10px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 30px 40px, #aaf, rgba(0,0,0,0)),
+                radial-gradient(3px 3px at 70px 120px, #faf, rgba(0,0,0,0));
+            background-size: 200px 200px;
+            opacity: 0.4;
+            animation: twinkle 5s infinite alternate;
+            z-index: -1;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        .nebula {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(100,0,255,0.2) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(0,255,200,0.2) 0%, transparent 45%);
+            filter: blur(40px);
+            animation: nebulaMove 20s infinite alternate;
+            z-index: -1;
+        }
+
+        @keyframes nebulaMove {
+            0% { opacity: 0.3; transform: scale(1); }
+            100% { opacity: 0.6; transform: scale(1.1); }
+        }
+
+        /* ===== الحاوية الرئيسية ===== */
+        .container-custom {
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: var(--spacing-md);
+            position: relative;
+            z-index: 100;
+        }
+
+        /* ===== تحكم الصوت ===== */
+        .audio-control {
+            position: fixed;
+            bottom: var(--spacing-lg);
+            left: var(--spacing-lg);
+            background: var(--bg-card);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--primary);
+            border-radius: var(--border-radius-xl);
+            padding: var(--spacing-sm);
+            display: flex;
+            gap: var(--spacing-xs);
+            z-index: 10000;
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        .audio-btn {
+            width: clamp(45px, 6vw, 60px);
+            height: clamp(45px, 6vw, 60px);
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            background: rgba(0,0,0,0.5);
+            color: var(--text-primary);
+            font-weight: 900;
+            font-size: var(--font-size-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .audio-btn:hover {
+            background: var(--primary);
+            color: black;
+            transform: scale(1.1);
+        }
+
+        .audio-btn.mute {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .audio-btn.mute:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .audio-level {
+            color: var(--primary);
+            font-size: var(--font-size-md);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            padding: 0 var(--spacing-sm);
+        }
+
+        /* ===== شريط الحالة ===== */
+        .status-bar {
+            background: var(--bg-card);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--primary);
+            border-radius: var(--border-radius-xl);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--spacing-md);
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: clamp(8px, 1.5vw, 12px);
+            height: clamp(8px, 1.5vw, 12px);
+            border-radius: 50%;
+        }
+
+        .status-dot.active {
+            background: var(--success);
+            box-shadow: 0 0 20px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* ===== العداد الرئيسي ===== */
+        .speedometer-wrapper {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: var(--spacing-lg) 0;
+        }
+
+        .speedometer {
+            position: relative;
+            width: var(--gauge-size);
+            height: var(--gauge-size);
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #333388, #080818);
+            box-shadow: 
+                0 0 100px var(--primary-glow),
+                inset 0 0 50px rgba(0,0,0,0.8);
+            border: 3px solid rgba(255,255,255,0.2);
+        }
+
+        .gauge-tick {
+            position: absolute;
+            width: clamp(2px, 0.5vw, 4px);
+            height: clamp(20px, 5vw, 40px);
+            background: linear-gradient(to bottom, #fff, var(--primary));
+            top: 50%;
+            left: 50%;
+            transform-origin: bottom;
+            border-radius: 4px;
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .gauge-number {
+            position: absolute;
+            font-size: clamp(12px, 3vw, 20px);
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 0 15px var(--primary);
+            transform: translate(-50%, -50%);
+            font-family: 'Orbitron', 'Tajawal', sans-serif;
+        }
+
+        .needle {
+            position: absolute;
+            width: clamp(4px, 1vw, 8px);
+            height: 48%;
+            background: linear-gradient(to top, var(--danger), var(--secondary));
+            top: 50%;
+            left: 50%;
+            transform-origin: bottom;
+            transform: rotate(-135deg);
+            border-radius: clamp(4px, 1vw, 8px);
+            box-shadow: 0 0 40px var(--secondary);
+            transition: transform 0.2s cubic-bezier(0.1, 0.9, 0.2, 1.1);
+        }
+
+        .needle::before {
+            content: '';
+            position: absolute;
+            top: -5%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: clamp(20px, 5vw, 30px);
+            height: clamp(20px, 5vw, 30px);
+            background: radial-gradient(circle, white, var(--primary));
+            border-radius: 50%;
+            box-shadow: 0 0 30px var(--primary);
+        }
+
+        .center-cap {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: var(--gauge-center);
+            height: var(--gauge-center);
+            background: radial-gradient(circle at 30% 30%, #444488, #0a0a20);
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 50px var(--primary-glow);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 30;
+            padding: var(--spacing-sm);
+        }
+
+        .current-speed {
+            font-size: clamp(35px, 10vw, 80px);
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1;
+            font-family: 'Orbitron', 'Tajawal', sans-serif;
+        }
+
+        .speed-unit {
+            font-size: clamp(14px, 4vw, 24px);
+            color: var(--text-secondary);
+        }
+
+        /* ===== تحديد السرعة القصوى ===== */
+        .speed-limit-box {
+            background: var(--bg-card);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--warning);
+            border-radius: var(--border-radius-xl);
+            padding: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: var(--spacing-lg);
+            box-shadow: 0 0 40px var(--warning);
+            animation: glowPulse 3s infinite alternate;
+        }
+
+        @keyframes glowPulse {
+            from { box-shadow: 0 0 30px var(--warning); }
+            to { box-shadow: 0 0 70px var(--warning); }
+        }
+
+        .speed-limit-input {
+            background: rgba(0,0,0,0.5);
+            border: 2px solid var(--primary);
+            border-radius: var(--border-radius-xl);
+            padding: var(--spacing-md) var(--spacing-lg);
+            color: white;
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            width: clamp(150px, 30vw, 250px);
+            text-align: center;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .speed-limit-value {
+            font-size: var(--font-size-xxl);
+            font-weight: 900;
+            color: var(--warning);
+            text-shadow: 0 0 30px currentColor;
+            margin: 0 var(--spacing-sm);
+        }
+
+        /* ===== إنذار تجاوز السرعة ===== */
+        .speed-alert {
+            background: var(--danger);
+            color: white;
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius-xl);
+            text-align: center;
+            font-size: var(--font-size-xl);
+            font-weight: 900;
+            margin: var(--spacing-md) 0;
+            animation: alertShake 0.5s infinite;
+            display: none;
+            box-shadow: 0 0 100px var(--danger-glow);
+            border: 2px solid yellow;
+        }
+
+        @keyframes alertShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .speed-alert.show {
+            display: block;
+        }
+
+        .warning-light {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: red;
+            box-shadow: 0 0 30px red;
+            animation: blink 0.5s infinite;
+            display: none;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .warning-light.active {
+            display: block;
+        }
+
+        /* ===== الخريطة ===== */
+        .map-container {
+            height: clamp(300px, 50vh, 500px);
+            width: 100%;
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 60px var(--primary-glow);
+            margin: var(--spacing-lg) 0;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .map-coordinates {
+            background: var(--bg-card);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--primary);
+            border-radius: var(--border-radius-xl);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-top: var(--spacing-sm);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--spacing-md);
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .coordinate-value {
+            color: var(--primary);
+            font-weight: 700;
+            font-family: monospace;
+            font-size: var(--font-size-md);
+        }
+
+        /* ===== بطاقات المعلومات ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 30vw, 300px), 1fr));
+            gap: var(--spacing-md);
+            margin: var(--spacing-lg) 0;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--primary);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(0,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: var(--bg-card-hover);
+            box-shadow: 0 0 50px var(--primary-glow);
+        }
+
+        .stat-card:hover::before {
+            opacity: 0.3;
+        }
+
+        .stat-icon {
+            font-size: clamp(30px, 5vw, 40px);
+            color: var(--primary);
+            margin-bottom: var(--spacing-sm);
+            filter: drop-shadow(0 0 15px currentColor);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            letter-spacing: 1px;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .stat-value {
+            font-size: var(--font-size-xxl);
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+            font-family: 'Orbitron', 'Tajawal', sans-serif;
+        }
+
+        .stat-unit {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-right: var(--spacing-xs);
+        }
+
+        /* ===== مؤشرات متقدمة ===== */
+        .advanced-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(150px, 20vw, 200px), 1fr));
+            gap: var(--spacing-sm);
+            margin: var(--spacing-lg) 0;
+        }
+
+        .metric-card {
+            background: rgba(30, 30, 60, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-md);
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .metric-card:hover {
+            border-color: var(--primary);
+            transform: scale(1.02);
+        }
+
+        .metric-title {
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .metric-value {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--primary);
+            text-shadow: 0 0 20px currentColor;
+        }
+
+        .metric-unit {
+            font-size: var(--font-size-xs);
+            color: var(--text-dim);
+            margin-right: 3px;
+        }
+
+        /* ===== الرسم البياني ===== */
+        .chart-container {
+            width: 100%;
+            height: clamp(120px, 20vh, 200px);
+            display: flex;
+            align-items: flex-end;
+            gap: clamp(3px, 0.5vw, 5px);
+            margin: var(--spacing-md) 0;
+            padding: 0 var(--spacing-xs);
+        }
+
+        .chart-bar {
+            flex: 1;
+            height: 0%;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
+            transition: height 0.3s ease;
+            min-width: 20px;
+            position: relative;
+            box-shadow: 0 -5px 20px var(--primary-glow);
+        }
+
+        .chart-bar::after {
+            content: attr(data-value);
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: var(--font-size-xs);
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .chart-label {
+            text-align: center;
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* ===== سجل الأحداث ===== */
+        .history-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--primary);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+        }
+
+        .history-list {
+            max-height: clamp(200px, 40vh, 300px);
+            overflow-y: auto;
+            padding: var(--spacing-xs);
+        }
+
+        .history-item {
+            background: rgba(0,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            margin: var(--spacing-xs) 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+            font-size: var(--font-size-sm);
+        }
+
+        .history-item.over-limit {
+            background: rgba(255,0,0,0.2);
+            border-right: 5px solid var(--danger);
+        }
+
+        .history-item:hover {
+            background: rgba(0,255,255,0.1);
+            transform: translateX(-5px);
+            border-color: var(--primary);
+        }
+
+        .history-time {
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: 600;
+        }
+
+        .history-speed {
+            font-weight: 700;
+            color: white;
+        }
+
+        .history-speed.over {
+            color: var(--danger);
+            font-weight: 900;
+        }
+
+        /* ===== لوحة التحكم ===== */
+        .control-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            justify-content: center;
+            margin: var(--spacing-xl) 0;
+        }
+
+        .control-btn {
+            background: var(--bg-card);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--primary);
+            color: var(--text-primary);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--border-radius-xl);
+            font-size: var(--font-size-sm);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            min-width: clamp(120px, 20vw, 160px);
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            border-color: var(--secondary);
+            box-shadow: 0 0 30px var(--primary-glow);
+            transform: translateY(-3px);
+        }
+
+        .control-btn.primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: black;
+            border: none;
+        }
+
+        .control-btn.danger {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .control-btn.danger:hover {
+            background: var(--danger);
+            color: white;
+            box-shadow: 0 0 40px var(--danger-glow);
+        }
+
+        .control-btn.success {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .control-btn.warning {
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .control-btn.warning:hover {
+            background: var(--warning);
+            color: black;
+        }
+
+        /* ===== بنر التنبيهات ===== */
+        .alert-banner {
+            position: fixed;
+            top: var(--spacing-lg);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--primary);
+            border-radius: var(--border-radius-xl);
+            padding: var(--spacing-md) var(--spacing-xl);
+            color: var(--primary);
+            font-size: var(--font-size-md);
+            font-weight: 700;
+            z-index: 10000;
+            display: none;
+            box-shadow: 0 0 60px rgba(0,0,0,0.8);
+            white-space: nowrap;
+        }
+
+        .alert-banner.show {
+            display: block;
+            animation: slideDown 0.5s;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-100%); }
+            to { transform: translateX(-50%) translateY(0); }
+        }
+
+        /* ===== تحسينات للأجهزة الصغيرة ===== */
+        @media (max-width: 576px) {
+            .speed-limit-box {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .control-btn {
+                width: 100%;
+            }
+            
+            .audio-control {
+                bottom: var(--spacing-sm);
+                left: var(--spacing-sm);
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .gauge-number {
+                font-size: 10px;
+            }
+            
+            .stat-value {
+                font-size: var(--font-size-xl);
+            }
+        }
+
+        /* ===== تحسينات للأجهزة الكبيرة ===== */
+        @media (min-width: 1400px) {
+            .container-custom {
+                padding: var(--spacing-xl);
+            }
+            
+            .stats-grid {
+                gap: var(--spacing-xl);
+            }
+        }
+
+        /* ===== تخصيص شريط التمرير ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+        }
+    </style>
 </head>
 <body>
+    <!-- خلفية كونية -->
+    <div class="cosmic-bg"></div>
+    <div class="stars"></div>
+    <div class="nebula"></div>
 
-<!-- خلفية متحركة -->
-<div class="background">
-    <div class="gradient-bg"></div>
-    <div class="particles" id="particles"></div>
-</div>
-
-<!-- الحاوية الرئيسية -->
-<div class="container-custom">
-
-    <!-- شريط الحالة -->
-    <div class="status-bar">
-        <div class="status-group">
-            <div class="status-item">
-                <span class="status-dot inactive" id="gpsDot"></span>
-                <span>GPS:</span>
-                <span class="status-value" id="gpsStatus">غير متصل</span>
-            </div>
-            <div class="status-item">
-                <i class="bi bi-satellite"></i>
-                <span id="satelliteCount">0</span>
-            </div>
-            <div class="status-item">
-                <i class="bi bi-crosshair"></i>
-                <span id="accuracy">--</span><span>م</span>
-            </div>
-        </div>
-        <div class="status-group">
-            <div class="status-item">
-                <i class="bi bi-clock"></i>
-                <span id="currentTime">--:--:--</span>
-            </div>
-            <div class="status-item">
-                <i class="bi bi-battery-full"></i>
-                <span id="batteryLevel">--</span>
-            </div>
-        </div>
+    <!-- تحكم الصوت -->
+    <div class="audio-control">
+        <button class="audio-btn" onclick="decreaseVolume()" title="خفض الصوت">
+            <i class="bi bi-volume-down-fill"></i>
+        </button>
+        <span class="audio-level" id="volumeLevel">70%</span>
+        <button class="audio-btn" onclick="increaseVolume()" title="رفع الصوت">
+            <i class="bi bi-volume-up-fill"></i>
+        </button>
+        <button class="audio-btn" onclick="toggleMute()" id="muteBtn" title="كتم الصوت">
+            <i class="bi bi-volume-mute-fill"></i>
+        </button>
+        <button class="audio-btn" onclick="testSound()" title="اختبار الصوت">
+            <i class="bi bi-soundwave"></i>
+        </button>
     </div>
 
-    <!-- العداد الرئيسي -->
-    <div class="speedometer-wrapper">
-        <div class="speedometer" id="speedometer"></div>
-        <div class="needle-container">
-            <div class="needle" id="needle"></div>
+    <!-- الحاوية الرئيسية -->
+    <div class="container-custom">
+        <!-- شريط الحالة -->
+        <div class="status-bar">
+            <div class="d-flex gap-3 flex-wrap">
+                <div class="status-item">
+                    <span class="status-dot active"></span>
+                    <span>GPS: <span id="gpsStatus">متصل</span></span>
+                </div>
+                <div class="status-item">
+                    <i class="bi bi-satellite"></i>
+                    <span id="satellites">18</span>
+                </div>
+                <div class="status-item">
+                    <i class="bi bi-crosshair"></i>
+                    <span id="accuracy">3</span>م
+                </div>
+            </div>
+            <div class="d-flex gap-3 flex-wrap">
+                <div class="status-item">
+                    <i class="bi bi-clock"></i>
+                    <span id="currentTime"></span>
+                </div>
+                <div class="status-item">
+                    <i class="bi bi-battery-charging"></i>
+                    <span id="batteryLevel">100%</span>
+                </div>
+            </div>
         </div>
-        <div class="center-cap">
-            <div class="current-speed" id="speedDisplay">0</div>
-            <div class="speed-unit" id="unitDisplay">كم/س</div>
-        </div>
-    </div>
 
-    <!-- بطاقات المعلومات -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon"><i class="bi bi-geo-alt"></i></div>
-            <div class="stat-label">المسافة المقطوعة</div>
-            <div class="stat-value" id="distance">0.00</div>
-            <div class="stat-unit" id="distanceUnit">كم</div>
+        <!-- العداد الرئيسي مع ضوء تحذير -->
+        <div style="position: relative;">
+            <div class="warning-light" id="warningLight"></div>
+            <div class="speedometer-wrapper">
+                <div class="speedometer" id="speedometer"></div>
+                <div class="needle" id="needle"></div>
+                <div class="center-cap">
+                    <div class="current-speed" id="speedDisplay">0</div>
+                    <div class="speed-unit" id="unitDisplay">كم/س</div>
+                </div>
+            </div>
         </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon"><i class="bi bi-lightning-charge"></i></div>
-            <div class="stat-label">السرعة القصوى</div>
-            <div class="stat-value" id="maxSpeed">0</div>
-            <div class="stat-unit" id="speedUnit">كم/س</div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon"><i class="bi bi-clock"></i></div>
-            <div class="stat-label">مدة الرحلة</div>
-            <div class="stat-value" id="tripTime">00:00</div>
-            <div class="stat-unit">ساعة</div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon"><i class="bi bi-speedometer2"></i></div>
-            <div class="stat-label">متوسط السرعة</div>
-            <div class="stat-value" id="avgSpeed">0</div>
-            <div class="stat-unit" id="avgSpeedUnit">كم/س</div>
-        </div>
-    </div>
 
-    <!-- الخريطة المصغرة -->
-    <div class="map-card">
-        <div class="map-title">
-            <i class="bi bi-map"></i>
-            <span>الموقع الحالي</span>
+        <!-- تحديد السرعة القصوى -->
+        <div class="speed-limit-box">
+            <div style="display: flex; align-items: center; gap: var(--spacing-md); flex-wrap: wrap;">
+                <i class="bi bi-exclamation-triangle-fill" style="font-size: var(--font-size-xl); color: var(--warning);"></i>
+                <span class="speed-limit-label">السرعة القصوى المسموحة:</span>
+                <input type="number" id="speedLimitInput" class="speed-limit-input" value="120" min="20" max="300" step="10">
+                <span class="speed-limit-unit">كم/س</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                <span class="speed-limit-label">السرعة المحددة:</span>
+                <span class="speed-limit-value" id="speedLimitDisplay">120</span>
+                <span class="speed-limit-unit">كم/س</span>
+            </div>
         </div>
-        <div class="map-container">
-            <div class="map-grid"></div>
-            <div class="map-marker" id="mapMarker"></div>
+
+        <!-- إنذار تجاوز السرعة -->
+        <div class="speed-alert" id="speedAlert">
+            <i class="bi bi-exclamation-triangle-fill me-3"></i>
+            <span id="alertMessage">تحذير! تجاوزت السرعة المسموحة!</span>
         </div>
+
+        <!-- الخريطة -->
+        <div class="map-container" id="map"></div>
         <div class="map-coordinates">
-            <span id="latitude">--° N</span>
-            <span id="longitude">--° E</span>
-            <span id="address">جاري التحديد...</span>
+            <div><i class="bi bi-geo-alt-fill text-primary"></i> خط العرض: <span class="coordinate-value" id="latitude">24.7136° N</span></div>
+            <div><i class="bi bi-geo-alt-fill text-primary"></i> خط الطول: <span class="coordinate-value" id="longitude">46.6753° E</span></div>
+            <div><i class="bi bi-pin-map-fill text-primary"></i> <span id="address">وسط الرياض</span></div>
+        </div>
+
+        <!-- مؤشرات متقدمة -->
+        <div class="advanced-metrics">
+            <div class="metric-card">
+                <div class="metric-title">G-Force</div>
+                <div><span class="metric-value" id="gForce">0.0</span><span class="metric-unit">G</span></div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">حرارة المحرك</div>
+                <div><span class="metric-value" id="engineHeat">78</span><span class="metric-unit">°C</span></div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">الاستهلاك</div>
+                <div><span class="metric-value" id="fuelEco">8.2</span><span class="metric-unit">ل/100كم</span></div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">ضربات القلب</div>
+                <div><span class="metric-value" id="heartRate">72</span><span class="metric-unit">نبضة</span></div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">مستوى التوتر</div>
+                <div><span class="metric-value" id="stressLevel">35</span><span class="metric-unit">%</span></div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">أداء القيادة</div>
+                <div><span class="metric-value" id="drivingScore">98</span><span class="metric-unit">%</span></div>
+            </div>
+        </div>
+
+        <!-- بطاقات المعلومات -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="bi bi-geo-alt stat-icon"></i>
+                <div class="stat-label">المسافة المقطوعة</div>
+                <div><span class="stat-value" id="distance">0.00</span><span class="stat-unit" id="distanceUnit">كم</span></div>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-lightning-charge stat-icon"></i>
+                <div class="stat-label">السرعة القصوى</div>
+                <div><span class="stat-value" id="maxSpeed">0</span><span class="stat-unit" id="maxSpeedUnit">كم/س</span></div>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-clock stat-icon"></i>
+                <div class="stat-label">مدة الرحلة</div>
+                <div><span class="stat-value" id="tripTime">00:00</span><span class="stat-unit">س</span></div>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-speedometer2 stat-icon"></i>
+                <div class="stat-label">السرعة المتوسطة</div>
+                <div><span class="stat-value" id="avgSpeed">0</span><span class="stat-unit" id="avgSpeedUnit">كم/س</span></div>
+            </div>
+        </div>
+
+        <!-- رسم بياني -->
+        <div class="history-card">
+            <div style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-md);">
+                <i class="bi bi-graph-up fs-4" style="color:var(--primary)"></i>
+                <span class="fs-5">السرعة خلال آخر 15 ثانية</span>
+            </div>
+            <div class="chart-container" id="speedChart"></div>
+        </div>
+
+        <!-- سجل الأحداث -->
+        <div class="history-card">
+            <div style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-md);">
+                <i class="bi bi-clock-history fs-4" style="color:var(--primary)"></i>
+                <span class="fs-5">سجل السرعة</span>
+            </div>
+            <div class="history-list" id="speedHistory"></div>
+        </div>
+
+        <!-- لوحة التحكم -->
+        <div class="control-panel">
+            <button class="control-btn" onclick="resetTrip()"><i class="bi bi-arrow-counterclockwise"></i> إعادة تعيين</button>
+            <button class="control-btn" onclick="toggleUnits()"><i class="bi bi-arrow-left-right"></i> وحدات</button>
+            <button class="control-btn" onclick="exportData()"><i class="bi bi-download"></i> تصدير</button>
+            <button class="control-btn" onclick="shareLocation()"><i class="bi bi-share"></i> مشاركة</button>
+            <button class="control-btn success" onclick="centerOnLocation()"><i class="bi bi-crosshair2"></i> تمركز</button>
+            <button class="control-btn warning" onclick="testSound()"><i class="bi bi-soundwave"></i> اختبار الصوت</button>
+            <button class="control-btn danger" onclick="emergencyStop()"><i class="bi bi-shield-shaded"></i> طوارئ</button>
         </div>
     </div>
 
-    <!-- الرسم البياني -->
-    <div class="chart-card">
-        <div class="map-title">
-            <i class="bi bi-graph-up"></i>
-            <span>السرعة خلال آخر 10 ثوان</span>
-        </div>
-        <div class="chart-container" id="speedChart"></div>
-    </div>
+    <!-- بنر التنبيهات -->
+    <div class="alert-banner" id="globalAlert"></div>
 
-    <!-- سجل الأحداث -->
-    <div class="history-card">
-        <div class="map-title">
-            <i class="bi bi-clock-history"></i>
-            <span>سجل السرعة</span>
-        </div>
-        <div class="history-list" id="speedHistory"></div>
-    </div>
-
-    <!-- لوحة التحكم -->
-    <div class="control-panel">
-        <button class="control-btn" onclick="resetTrip()" id="resetBtn" disabled>
-            <i class="bi bi-arrow-counterclockwise"></i>
-            <span>إعادة تعيين</span>
-        </button>
-        <button class="control-btn" onclick="toggleUnits()" id="unitsBtn" disabled>
-            <i class="bi bi-arrow-left-right"></i>
-            <span>تبديل الوحدات</span>
-        </button>
-        <button class="control-btn" onclick="exportData()" id="exportBtn" disabled>
-            <i class="bi bi-download"></i>
-            <span>تصدير</span>
-        </button>
-        <button class="control-btn" onclick="shareLocation()" id="shareBtn" disabled>
-            <i class="bi bi-share"></i>
-            <span>مشاركة</span>
-        </button>
-        <button class="control-btn danger" onclick="emergencyStop()" id="emergencyBtn">
-            <i class="bi bi-exclamation-triangle"></i>
-            <span>طوارئ</span>
-        </button>
-    </div>
-
-</div>
-
-<!-- بنر التنبيهات -->
-<div class="alert-banner" id="alertBanner">
-    <i class="bi bi-info-circle"></i>
-    <span id="alertMessage"></span>
-</div>
-
-<script>
-// ==================== الإعدادات المتقدمة ====================
-const CONFIG = {
-    MAX_SPEED: 240,
-    MIN_ANGLE: -135,
-    MAX_ANGLE: 125,
-    UNIT: 'kmh',
-    HISTORY_SIZE: 50,
-    CHART_SIZE: 10,
-    ALERT_SPEED: 120,
-    EMERGENCY_SPEED: 160
-};
-
-// ==================== حالة التطبيق ====================
-const APP_STATE = {
-    permission: false,
-    tracking: false,
-    emergency: false,
-    startTime: null,
-    totalDistance: 0,
-    maxSpeed: 0,
-    lastPosition: null,
-    lastSpeed: 0,
-    lastTime: null,
-    movingTime: 0,
-    speedHistory: [],
-    accelerationHistory: []
-};
-
-// ==================== المتغيرات العامة ====================
-let watchId = null;
-let speedBuffer = [];
-let updateInterval = null;
-let batteryInfo = null;
-
-// ==================== إنشاء تدرجات العداد ====================
-function createGaugeTicks() {
-    const speedometer = document.getElementById('speedometer');
-    if (!speedometer) return;
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    // حساب الأبعاد
-    const size = speedometer.offsetWidth;
-    
-    // إنشاء التدرجات الرئيسية (كل 20 كم/س)
-    for (let i = 0; i <= CONFIG.MAX_SPEED; i += 20) {
-        const angle = CONFIG.MIN_ANGLE + (i / CONFIG.MAX_SPEED) * (CONFIG.MAX_ANGLE - CONFIG.MIN_ANGLE);
-        
-        // تدرج رئيسي
-        const tick = document.createElement('div');
-        tick.className = 'gauge-tick major';
-        tick.style.transform = `rotate(${angle}deg) translate(-50%, ${-size * 0.45}px)`;
-        speedometer.appendChild(tick);
-        
-        // إضافة الرقم
-        const number = document.createElement('div');
-        number.className = 'gauge-number';
-        number.textContent = i;
-        
-        const radius = size * 0.42;
-        const radian = (angle * Math.PI) / 180;
-        const x = size/2 + radius * Math.cos(radian - Math.PI/2);
-        const y = size/2 + radius * Math.sin(radian - Math.PI/2);
-        
-        number.style.left = x + 'px';
-        number.style.top = y + 'px';
-        
-        speedometer.appendChild(number);
-        
-        // إضافة تدرجات ثانوية (كل 10 كم/س)
-        if (i < CONFIG.MAX_SPEED) {
-            for (let j = 10; j < 20; j += 10) {
-                const minorAngle = CONFIG.MIN_ANGLE + ((i + j) / CONFIG.MAX_SPEED) * (CONFIG.MAX_ANGLE - CONFIG.MIN_ANGLE);
-                const minorTick = document.createElement('div');
-                minorTick.className = 'gauge-tick minor';
-                minorTick.style.transform = `rotate(${minorAngle}deg) translate(-50%, ${-size * 0.45}px)`;
-                speedometer.appendChild(minorTick);
+    <script>
+        // ==================== إعدادات التطبيق ====================
+        const CONFIG = {
+            MAX_SPEED: 240,
+            MIN_ANGLE: -135,
+            MAX_ANGLE: 125,
+            UNIT: 'kmh',
+            HISTORY_SIZE: 30,
+            CHART_SIZE: 15,
+            ALERT_SPEED: 120,
+            EMERGENCY_SPEED: 160
+        };
+
+        // ==================== إعدادات الصوت ====================
+        const AUDIO = {
+            context: null,
+            volume: 0.7,
+            muted: false,
+            alertInterval: null,
+            lastAlertTime: 0
+        };
+
+        // ==================== حالة التطبيق ====================
+        const APP_STATE = {
+            currentSpeed: 85,
+            maxSpeed: 0,
+            totalDistance: 15.7,
+            avgSpeed: 62,
+            startTime: Date.now(),
+            lastPosition: { lat: 24.7136, lon: 46.6753 },
+            speedLimit: 120,
+            alertActive: false,
+            gForce: 1.2,
+            engineHeat: 78,
+            fuelEco: 8.2,
+            heartRate: 72,
+            stressLevel: 35,
+            drivingScore: 98,
+            nightMode: false,
+            lastSpeedAlert: false
+        };
+
+        let speedBuffer = [];
+        let map = null;
+        let userMarker = null;
+        let simulationInterval = null;
+
+        // ==================== تهيئة الصوت ====================
+        function initAudio() {
+            try {
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                AUDIO.context = new AudioContext();
+                updateVolumeDisplay();
+            } catch (e) {
+                console.warn('Web Audio API غير مدعومة في هذا المتصفح');
             }
         }
-    }
-    
-    // إضافة علامات خاصة للسرعات العالية
-    const dangerAngles = [160, 180, 200, 220, 240];
-    dangerAngles.forEach(speed => {
-        if (speed <= CONFIG.MAX_SPEED) {
-            const angle = CONFIG.MIN_ANGLE + (speed / CONFIG.MAX_SPEED) * (CONFIG.MAX_ANGLE - CONFIG.MIN_ANGLE);
-            const dangerTick = document.createElement('div');
-            dangerTick.className = 'gauge-tick major';
-            dangerTick.style.background = 'linear-gradient(to bottom, #ff1744, #b829ff)';
-            dangerTick.style.transform = `rotate(${angle}deg) translate(-50%, ${-size * 0.45}px)`;
-            speedometer.appendChild(dangerTick);
-        }
-    });
-}
 
-// ==================== طلب الإذن الصامت ====================
-async function silentPermissionRequest() {
-    try {
-        if (!navigator.geolocation) {
-            showAlert('المتصفح لا يدعم تحديد الموقع', 'danger');
-            return false;
-        }
-
-        if (navigator.permissions && navigator.permissions.query) {
-            const result = await navigator.permissions.query({ name: 'geolocation' });
+        // ==================== تشغيل صوت الإنذار ====================
+        function playAlertSound(type = 'danger') {
+            if (!AUDIO.context || AUDIO.muted) return;
             
-            if (result.state === 'granted') {
-                startTracking();
-                return true;
+            try {
+                // استئناف الـ Audio Context إذا كان متوقفاً
+                if (AUDIO.context.state === 'suspended') {
+                    AUDIO.context.resume();
+                }
+                
+                const now = Date.now();
+                if (now - AUDIO.lastAlertTime < 500) return; // منع تكرار الصوت بسرعة
+                AUDIO.lastAlertTime = now;
+                
+                const oscillator = AUDIO.context.createOscillator();
+                const gainNode = AUDIO.context.createGain();
+                
+                // ربط المكونات
+                oscillator.connect(gainNode);
+                gainNode.connect(AUDIO.context.destination);
+                
+                // ضبط مستوى الصوت
+                gainNode.gain.value = AUDIO.volume * (type === 'warning' ? 0.5 : 0.8);
+                
+                if (type === 'danger') {
+                    // صوت إنذار قوي (تذبذب سريع)
+                    oscillator.type = 'sawtooth';
+                    oscillator.frequency.value = 800;
+                    
+                    // تأثير تذبذب
+                    oscillator.frequency.setValueAtTime(800, AUDIO.context.currentTime);
+                    oscillator.frequency.setValueAtTime(1200, AUDIO.context.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(800, AUDIO.context.currentTime + 0.2);
+                    
+                    // مدة الصوت
+                    oscillator.stop(AUDIO.context.currentTime + 0.3);
+                } else if (type === 'warning') {
+                    // صوت تحذير (نغمة واحدة)
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 600;
+                    oscillator.stop(AUDIO.context.currentTime + 0.2);
+                } else if (type === 'success') {
+                    // صوت نجاح (نغمة مرتفعة)
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(800, AUDIO.context.currentTime);
+                    oscillator.frequency.setValueAtTime(1200, AUDIO.context.currentTime + 0.1);
+                    oscillator.stop(AUDIO.context.currentTime + 0.2);
+                }
+                
+                oscillator.start();
+            } catch (e) {
+                console.warn('خطأ في تشغيل الصوت:', e);
+            }
+        }
+
+        // ==================== اختبار الصوت ====================
+        function testSound() {
+            if (!AUDIO.context) {
+                initAudio();
+            }
+            
+            playAlertSound('success');
+            showGlobalAlert('🔊 تم تشغيل صوت الاختبار', 'success');
+            
+            // وميض مؤشر الصوت
+            const btn = document.querySelector('.audio-btn:last-child');
+            btn.style.background = 'var(--primary)';
+            btn.style.color = 'black';
+            setTimeout(() => {
+                btn.style.background = '';
+                btn.style.color = '';
+            }, 200);
+        }
+
+        // ==================== التحكم في مستوى الصوت ====================
+        function increaseVolume() {
+            AUDIO.volume = Math.min(1, AUDIO.volume + 0.1);
+            updateVolumeDisplay();
+            playAlertSound('success');
+            showGlobalAlert(`🔊 مستوى الصوت: ${Math.round(AUDIO.volume * 100)}%`, 'info');
+        }
+
+        function decreaseVolume() {
+            AUDIO.volume = Math.max(0, AUDIO.volume - 0.1);
+            updateVolumeDisplay();
+            playAlertSound('warning');
+            showGlobalAlert(`🔉 مستوى الصوت: ${Math.round(AUDIO.volume * 100)}%`, 'info');
+        }
+
+        function toggleMute() {
+            AUDIO.muted = !AUDIO.muted;
+            const muteBtn = document.getElementById('muteBtn');
+            
+            if (AUDIO.muted) {
+                muteBtn.classList.add('mute');
+                muteBtn.innerHTML = '<i class="bi bi-volume-off-fill"></i>';
+                showGlobalAlert('🔇 تم كتم الصوت', 'warning');
             } else {
-                return await requestSilentPermission();
+                muteBtn.classList.remove('mute');
+                muteBtn.innerHTML = '<i class="bi bi-volume-mute-fill"></i>';
+                showGlobalAlert('🔊 تم إلغاء الكتم', 'success');
+                playAlertSound('success');
             }
-        } else {
-            return await requestSilentPermission();
         }
-    } catch (error) {
-        console.error('خطأ في طلب الإذن:', error);
-        return false;
-    }
-}
 
-function requestSilentPermission() {
-    return new Promise((resolve) => {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                startTracking();
-                updateLocationData(position);
-                showAlert('تم تفعيل تحديد الموقع', 'success');
-                resolve(true);
-            },
-            (error) => {
-                handlePermissionError(error);
-                resolve(false);
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
-            }
-        );
-    });
-}
-
-function handlePermissionError(error) {
-    let message = '';
-    switch(error.code) {
-        case error.PERMISSION_DENIED:
-            message = 'تم رفض الوصول للموقع';
-            updateGPSStatus('inactive', 'رفض الإذن');
-            break;
-        case error.POSITION_UNAVAILABLE:
-            message = 'معلومات الموقع غير متاحة';
-            break;
-        case error.TIMEOUT:
-            message = 'انتهت مهلة الطلب';
-            break;
-    }
-    showAlert(message, 'warning');
-}
-
-function startTracking() {
-    if (watchId) {
-        navigator.geolocation.clearWatch(watchId);
-    }
-    
-    APP_STATE.permission = true;
-    APP_STATE.tracking = true;
-    APP_STATE.startTime = Date.now();
-    
-    document.getElementById('resetBtn').disabled = false;
-    document.getElementById('unitsBtn').disabled = false;
-    document.getElementById('exportBtn').disabled = false;
-    document.getElementById('shareBtn').disabled = false;
-    
-    startRealTimeUpdates();
-    
-    watchId = navigator.geolocation.watchPosition(
-        updateLocationData,
-        handleTrackingError,
-        {
-            enableHighAccuracy: true,
-            maximumAge: 0,
-            timeout: 5000
+        function updateVolumeDisplay() {
+            document.getElementById('volumeLevel').textContent = `${Math.round(AUDIO.volume * 100)}%`;
         }
-    );
-    
-    getBatteryInfo();
-}
 
-function handleTrackingError(error) {
-    console.warn('خطأ في التتبع:', error);
-    updateGPSStatus('inactive', 'خطأ في GPS');
-    
-    if (error.code === 3) {
-        setTimeout(() => restartTracking(), 5000);
-    }
-}
-
-function restartTracking() {
-    if (APP_STATE.permission) {
-        if (watchId) navigator.geolocation.clearWatch(watchId);
-        startTracking();
-    }
-}
-
-// ==================== تحديث البيانات ====================
-function startRealTimeUpdates() {
-    if (updateInterval) clearInterval(updateInterval);
-    
-    updateInterval = setInterval(() => {
-        updateTime();
-        updateCharts();
-        checkAlerts();
-    }, 100);
-}
-
-function updateLocationData(pos) {
-    const lat = pos.coords.latitude;
-    const lon = pos.coords.longitude;
-    const accuracy = pos.coords.accuracy;
-    const altitude = pos.coords.altitude || 0;
-    const speed = pos.coords.speed ? pos.coords.speed * 3.6 : 0;
-    const bearing = pos.coords.heading || 0;
-    const timestamp = pos.timestamp;
-    
-    // تحديث حالة GPS
-    updateGPSStatus('active', 'متصل');
-    document.getElementById('satelliteCount').textContent = Math.floor(Math.random() * 5 + 8);
-    document.getElementById('accuracy').textContent = accuracy.toFixed(0);
-    
-    // تحديث الإحداثيات
-    document.getElementById('latitude').innerHTML = `${lat.toFixed(6)}° N`;
-    document.getElementById('longitude').innerHTML = `${lon.toFixed(6)}° E`;
-    
-    // تحديث موقع العلامة على الخريطة
-    updateMapMarker(lat, lon);
-    
-    // عكس العنوان (محاكاة)
-    reverseGeocode(lat, lon);
-    
-    // حساب المسافة
-    if (APP_STATE.lastPosition) {
-        const d = calculateDistance(
-            APP_STATE.lastPosition.lat,
-            APP_STATE.lastPosition.lon,
-            lat, lon
-        );
-        
-        if (d < 0.1) {
-            APP_STATE.totalDistance += d;
+        // ==================== تهيئة الخريطة ====================
+        function initMap() {
+            map = L.map('map').setView([APP_STATE.lastPosition.lat, APP_STATE.lastPosition.lon], 13);
             
-            if (speed > 1 && APP_STATE.lastTime) {
-                APP_STATE.movingTime += (timestamp - APP_STATE.lastTime) / 1000;
-            }
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            // إضافة علامة المستخدم
+            userMarker = L.marker([APP_STATE.lastPosition.lat, APP_STATE.lastPosition.lon], {
+                icon: L.divIcon({
+                    html: '<div style="background:var(--primary); width:20px; height:20px; border-radius:50%; border:3px solid white; box-shadow:0 0 40px var(--primary);"></div>',
+                    className: 'user-marker',
+                    iconSize: [20, 20]
+                })
+            }).addTo(map);
+
+            // تحديث الموقع كل 3 ثواني
+            setInterval(updateUserLocation, 3000);
         }
-    }
-    
-    // تحديث السرعة القصوى
-    if (speed > APP_STATE.maxSpeed) {
-        APP_STATE.maxSpeed = speed;
-    }
-    
-    // تخزين البيانات
-    APP_STATE.lastPosition = { lat, lon };
-    APP_STATE.lastSpeed = speed;
-    APP_STATE.lastTime = timestamp;
-    
-    // تخزين في السجل
-    speedBuffer.push({
-        speed: speed,
-        time: new Date().toLocaleTimeString('ar-EG')
-    });
-    if (speedBuffer.length > CONFIG.HISTORY_SIZE) speedBuffer.shift();
-    
-    // تحديث الشاشة
-    updateDisplay(speed);
-    updateStats();
-    updateHistory();
-}
 
-function updateMapMarker(lat, lon) {
-    const marker = document.getElementById('mapMarker');
-    
-    // تحويل الإحداثيات إلى نسب مئوية (محاكاة)
-    const x = ((lon + 180) % 360) / 360 * 100;
-    const y = ((90 - lat) % 180) / 180 * 100;
-    
-    marker.style.left = `${x}%`;
-    marker.style.top = `${y}%`;
-}
-
-function reverseGeocode(lat, lon) {
-    const locations = [
-        'شارع الملك فهد',
-        'طريق الملك عبدالله',
-        'حي النزهة',
-        'وسط المدينة',
-        'المنطقة الصناعية',
-        'شارع التحلية'
-    ];
-    
-    const randomIndex = Math.floor(Math.random() * locations.length);
-    document.getElementById('address').textContent = locations[randomIndex];
-}
-
-function updateDisplay(speed) {
-    // تحديث عرض السرعة
-    const displaySpeed = CONFIG.UNIT === 'kmh' ? speed : speed * 0.621371;
-    document.getElementById('speedDisplay').textContent = Math.round(displaySpeed);
-    
-    // تحديث زاوية الإبرة
-    const angle = CONFIG.MIN_ANGLE + (Math.min(speed, CONFIG.MAX_SPEED) / CONFIG.MAX_SPEED) * 
-                  (CONFIG.MAX_ANGLE - CONFIG.MIN_ANGLE);
-    document.getElementById('needle').style.transform = `rotate(${angle}deg)`;
-    
-    // تغيير لون الإبرة حسب السرعة
-    const needle = document.getElementById('needle');
-    if (speed > CONFIG.EMERGENCY_SPEED) {
-        needle.style.background = 'linear-gradient(to top, #ff1744, #b829ff)';
-    } else if (speed > CONFIG.ALERT_SPEED) {
-        needle.style.background = 'linear-gradient(to top, #ffd600, #b829ff)';
-    } else {
-        needle.style.background = 'linear-gradient(to top, #00f0ff, #b829ff)';
-    }
-}
-
-function updateStats() {
-    document.getElementById('distance').textContent = APP_STATE.totalDistance.toFixed(2);
-    
-    const maxDisplay = CONFIG.UNIT === 'kmh' ? APP_STATE.maxSpeed : APP_STATE.maxSpeed * 0.621371;
-    document.getElementById('maxSpeed').textContent = Math.round(maxDisplay);
-    
-    const avgDisplay = CONFIG.UNIT === 'kmh' ? calculateAverageSpeed() : calculateAverageSpeed() * 0.621371;
-    document.getElementById('avgSpeed').textContent = Math.round(avgDisplay);
-    
-    // تحديث مدة الرحلة
-    if (APP_STATE.startTime) {
-        const elapsed = (Date.now() - APP_STATE.startTime) / 1000 / 60 / 60;
-        const hours = Math.floor(elapsed);
-        const minutes = Math.floor((elapsed - hours) * 60);
-        document.getElementById('tripTime').textContent = 
-            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-    }
-}
-
-function calculateAverageSpeed() {
-    if (APP_STATE.movingTime > 0) {
-        return APP_STATE.totalDistance / (APP_STATE.movingTime / 3600);
-    }
-    return 0;
-}
-
-function updateHistory() {
-    const historyList = document.getElementById('speedHistory');
-    historyList.innerHTML = '';
-    
-    speedBuffer.slice().reverse().slice(0, 10).forEach(item => {
-        const displaySpeed = CONFIG.UNIT === 'kmh' ? item.speed : item.speed * 0.621371;
-        let color = '#00e676';
-        
-        if (item.speed > CONFIG.EMERGENCY_SPEED) {
-            color = '#ff1744';
-        } else if (item.speed > CONFIG.ALERT_SPEED) {
-            color = '#ffd600';
-        }
-        
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'history-item';
-        itemDiv.innerHTML = `
-            <span class="history-time">${item.time}</span>
-            <span class="history-speed" style="color: ${color};">
-                ${Math.round(displaySpeed)} ${CONFIG.UNIT === 'kmh' ? 'كم/س' : 'ميل/س'}
-            </span>
-        `;
-        historyList.appendChild(itemDiv);
-    });
-}
-
-function updateCharts() {
-    const chartContainer = document.getElementById('speedChart');
-    chartContainer.innerHTML = '';
-    
-    const recentSpeeds = speedBuffer.slice(-CONFIG.CHART_SIZE);
-    
-    recentSpeeds.forEach(item => {
-        const height = (item.speed / CONFIG.MAX_SPEED) * 100;
-        const displaySpeed = CONFIG.UNIT === 'kmh' ? item.speed : item.speed * 0.621371;
-        
-        const bar = document.createElement('div');
-        bar.className = 'chart-bar';
-        bar.style.height = height + '%';
-        bar.setAttribute('data-value', Math.round(displaySpeed));
-        chartContainer.appendChild(bar);
-        
-        const label = document.createElement('div');
-        label.className = 'chart-label';
-        const seconds = item.time ? new Date('1970-01-01T' + item.time + 'Z').getSeconds() : 0;
-        label.textContent = seconds + 'ث';
-        chartContainer.appendChild(label);
-    });
-}
-
-function updateTime() {
-    const now = new Date();
-    document.getElementById('currentTime').textContent = 
-        now.toLocaleTimeString('ar-EG');
-}
-
-function updateGPSStatus(status, text) {
-    const dot = document.getElementById('gpsDot');
-    dot.className = `status-dot ${status}`;
-    document.getElementById('gpsStatus').textContent = text;
-}
-
-function getBatteryInfo() {
-    if (navigator.getBattery) {
-        navigator.getBattery().then(battery => {
-            batteryInfo = battery;
-            updateBatteryInfo();
+        // ==================== تحديث موقع المستخدم ====================
+        function updateUserLocation() {
+            // محاكاة التحرك على الخريطة
+            APP_STATE.lastPosition.lon += 0.001;
             
-            battery.addEventListener('levelchange', updateBatteryInfo);
-            battery.addEventListener('chargingchange', updateBatteryInfo);
-        });
-    }
-}
-
-function updateBatteryInfo() {
-    if (batteryInfo) {
-        const level = Math.round(batteryInfo.level * 100);
-        const charging = batteryInfo.charging ? '⚡' : '';
-        document.getElementById('batteryLevel').textContent = `${level}% ${charging}`;
-    }
-}
-
-function checkAlerts() {
-    if (APP_STATE.lastSpeed > CONFIG.EMERGENCY_SPEED) {
-        showAlert('⚠️ تحذير: سرعة خطيرة!', 'danger');
-    } else if (APP_STATE.lastSpeed > CONFIG.ALERT_SPEED) {
-        showAlert('⚠️ تنبيه: سرعة عالية', 'warning');
-    }
-}
-
-// ==================== دوال المساعدة ====================
-function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371;
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a = Math.sin(dLat/2) ** 2 +
-              Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-              Math.sin(dLon/2) ** 2;
-    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
-}
-
-function toRad(v) {
-    return v * Math.PI / 180;
-}
-
-// ==================== دوال التحكم ====================
-function resetTrip() {
-    if (confirm('هل أنت متأكد من إعادة تعيين جميع البيانات؟')) {
-        APP_STATE.totalDistance = 0;
-        APP_STATE.maxSpeed = 0;
-        APP_STATE.movingTime = 0;
-        APP_STATE.speedHistory = [];
-        speedBuffer = [];
-        
-        updateStats();
-        showAlert('تم إعادة تعيين البيانات', 'success');
-    }
-}
-
-function toggleUnits() {
-    CONFIG.UNIT = CONFIG.UNIT === 'kmh' ? 'mph' : 'kmh';
-    const unitText = CONFIG.UNIT === 'kmh' ? 'كم/س' : 'ميل/س';
-    const distanceUnit = CONFIG.UNIT === 'kmh' ? 'كم' : 'ميل';
-    
-    document.getElementById('unitDisplay').textContent = unitText;
-    document.getElementById('speedUnit').textContent = unitText;
-    document.getElementById('avgSpeedUnit').textContent = unitText;
-    document.getElementById('distanceUnit').textContent = distanceUnit;
-    
-    updateDisplay(APP_STATE.lastSpeed || 0);
-    updateStats();
-    updateHistory();
-    updateCharts();
-    
-    showAlert(`تم التبديل إلى ${unitText}`, 'success');
-}
-
-function exportData() {
-    const data = {
-        timestamp: new Date().toISOString(),
-        totalDistance: APP_STATE.totalDistance,
-        maxSpeed: APP_STATE.maxSpeed,
-        averageSpeed: calculateAverageSpeed(),
-        history: speedBuffer,
-        unit: CONFIG.UNIT
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `رحلة-${Date.now()}.json`;
-    a.click();
-    
-    showAlert('تم تصدير البيانات بنجاح', 'success');
-}
-
-function shareLocation() {
-    if (APP_STATE.lastPosition) {
-        const speedValue = CONFIG.UNIT === 'kmh' ? APP_STATE.lastSpeed : APP_STATE.lastSpeed * 0.621371;
-        const unitText = CONFIG.UNIT === 'kmh' ? 'كم/س' : 'ميل/س';
-        
-        const text = `📍 موقعي الحالي:\n` +
-                    `خط العرض: ${APP_STATE.lastPosition.lat.toFixed(6)}\n` +
-                    `خط الطول: ${APP_STATE.lastPosition.lon.toFixed(6)}\n` +
-                    `السرعة: ${Math.round(speedValue)} ${unitText}`;
-        
-        if (navigator.share) {
-            navigator.share({
-                title: 'مشاركة الموقع',
-                text: text
-            }).catch(() => {
-                navigator.clipboard.writeText(text);
-                showAlert('تم نسخ الموقع', 'success');
+            // تحديث السرعة بشكل عشوائي (محاكاة)
+            const speedChange = (Math.random() - 0.5) * 8;
+            APP_STATE.currentSpeed = Math.max(60, Math.min(200, APP_STATE.currentSpeed + speedChange));
+            
+            if (APP_STATE.currentSpeed > APP_STATE.maxSpeed) {
+                APP_STATE.maxSpeed = APP_STATE.currentSpeed;
+            }
+            
+            APP_STATE.totalDistance += 0.02;
+            APP_STATE.avgSpeed = APP_STATE.totalDistance / ((Date.now() - APP_STATE.startTime) / 3600000);
+            
+            // تحديث المؤشرات الأخرى
+            APP_STATE.gForce = Math.abs(speedChange) * 0.2;
+            APP_STATE.engineHeat = 70 + (APP_STATE.currentSpeed * 0.1);
+            APP_STATE.heartRate = 65 + (APP_STATE.currentSpeed * 0.1);
+            APP_STATE.stressLevel = 30 + (APP_STATE.currentSpeed * 0.15);
+            APP_STATE.drivingScore = APP_STATE.currentSpeed < APP_STATE.speedLimit ? 98 : 75;
+            
+            // تحديث العلامة على الخريطة
+            if (userMarker) {
+                userMarker.setLatLng([APP_STATE.lastPosition.lat, APP_STATE.lastPosition.lon]);
+                map.panTo([APP_STATE.lastPosition.lat, APP_STATE.lastPosition.lon]);
+            }
+            
+            // إضافة للسجل
+            speedBuffer.push({
+                speed: APP_STATE.currentSpeed,
+                time: new Date().toLocaleTimeString('ar-EG'),
+                overLimit: APP_STATE.currentSpeed > APP_STATE.speedLimit
             });
-        } else {
-            navigator.clipboard.writeText(text);
-            showAlert('تم نسخ الموقع إلى الحافظة', 'success');
+            if (speedBuffer.length > CONFIG.HISTORY_SIZE) speedBuffer.shift();
+            
+            // التحقق من تجاوز السرعة
+            checkSpeedLimit();
+            
+            // تحديث الواجهة
+            updateDisplay();
+            updateStats();
+            updateMetrics();
+            updateHistory();
+            updateCharts();
+            updateCoordinates();
         }
-    }
-}
 
-function emergencyStop() {
-    APP_STATE.emergency = !APP_STATE.emergency;
-    
-    if (APP_STATE.emergency) {
-        showAlert('⚠️ وضع الطوارئ مفعل', 'danger');
-        document.getElementById('emergencyBtn').style.background = 'var(--danger)';
-        document.getElementById('emergencyBtn').style.color = 'white';
-    } else {
-        showAlert('تم إلغاء وضع الطوارئ', 'success');
-        document.getElementById('emergencyBtn').style.background = '';
-        document.getElementById('emergencyBtn').style.color = '';
-    }
-}
-
-function showAlert(message, type = 'info') {
-    const banner = document.getElementById('alertBanner');
-    const messageEl = document.getElementById('alertMessage');
-    
-    banner.className = `alert-banner ${type}`;
-    messageEl.textContent = message;
-    banner.classList.add('show');
-    
-    setTimeout(() => {
-        banner.classList.remove('show');
-    }, 3000);
-}
-
-// ==================== إنشاء خلفية متحركة ====================
-function createParticles() {
-    const container = document.getElementById('particles');
-    if (!container) return;
-    
-    const count = window.innerWidth < 768 ? 25 : 50;
-    
-    for (let i = 0; i < count; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 20 + 's';
-        particle.style.animationDuration = (15 + Math.random() * 20) + 's';
-        container.appendChild(particle);
-    }
-}
-
-// ==================== معالج تغيير حجم النافذة ====================
-let resizeTimeout;
-window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-        const speedometer = document.getElementById('speedometer');
-        if (speedometer) {
+        // ==================== إنشاء تدرجات العداد ====================
+        function createGaugeTicks() {
+            const speedometer = document.getElementById('speedometer');
+            if (!speedometer) return;
+            
             speedometer.innerHTML = '';
-            createGaugeTicks();
+            const size = speedometer.offsetWidth;
+            
+            for (let i = 0; i <= CONFIG.MAX_SPEED; i += 20) {
+                const angle = CONFIG.MIN_ANGLE + (i / CONFIG.MAX_SPEED) * (CONFIG.MAX_ANGLE - CONFIG.MIN_ANGLE);
+                
+                const tick = document.createElement('div');
+                tick.className = 'gauge-tick';
+                tick.style.transform = `rotate(${angle}deg) translate(-50%, ${-size * 0.45}px)`;
+                speedometer.appendChild(tick);
+                
+                if (i % 40 === 0) {
+                    const number = document.createElement('div');
+                    number.className = 'gauge-number';
+                    number.textContent = i;
+                    
+                    const radian = (angle * Math.PI) / 180;
+                    const x = size/2 + size * 0.38 * Math.cos(radian - Math.PI/2);
+                    const y = size/2 + size * 0.38 * Math.sin(radian - Math.PI/2);
+                    
+                    number.style.left = x + 'px';
+                    number.style.top = y + 'px';
+                    speedometer.appendChild(number);
+                }
+            }
         }
-    }, 250);
-});
 
-// ==================== التهيئة ====================
-document.addEventListener('DOMContentLoaded', () => {
-    createParticles();
-    
-    // تأخير بسيط لضمان حساب الأبعاد بشكل صحيح
-    setTimeout(() => {
-        createGaugeTicks();
-    }, 100);
-    
-    silentPermissionRequest();
-    
-    setInterval(updateTime, 1000);
-});
-
-// تحديث عند تغيير اتجاه الشاشة
-window.addEventListener('orientationchange', () => {
-    setTimeout(() => {
-        const speedometer = document.getElementById('speedometer');
-        if (speedometer) {
-            speedometer.innerHTML = '';
-            createGaugeTicks();
+        // ==================== تحديث السرعة المسموحة ====================
+        function updateSpeedLimit() {
+            const input = document.getElementById('speedLimitInput');
+            const display = document.getElementById('speedLimitDisplay');
+            const limit = parseInt(input.value) || 120;
+            
+            APP_STATE.speedLimit = limit;
+            display.textContent = limit;
+            
+            showGlobalAlert(`تم تحديث السرعة المسموحة إلى ${limit} كم/س`, 'success');
+            playAlertSound('success');
         }
-    }, 200);
-});
-</script>
+
+        // ==================== التحقق من تجاوز السرعة ====================
+        function checkSpeedLimit() {
+            const alertBox = document.getElementById('speedAlert');
+            const messageEl = document.getElementById('alertMessage');
+            const warningLight = document.getElementById('warningLight');
+            
+            const isOverLimit = APP_STATE.currentSpeed > APP_STATE.speedLimit;
+            const isNearLimit = APP_STATE.currentSpeed > APP_STATE.speedLimit - 10 && !isOverLimit;
+            
+            if (isOverLimit) {
+                alertBox.classList.add('show');
+                messageEl.innerHTML = `🚨 تحذير! تجاوزت السرعة المسموحة! (${Math.round(APP_STATE.currentSpeed)} كم/س > ${APP_STATE.speedLimit} كم/س)`;
+                warningLight.classList.add('active');
+                
+                // تشغيل صوت الإنذار إذا لم يكن مفعلاً مسبقاً
+                if (!APP_STATE.alertActive) {
+                    playAlertSound('danger');
+                    
+                    // تشغيل إنذار متكرر كل ثانيتين
+                    if (AUDIO.alertInterval) clearInterval(AUDIO.alertInterval);
+                    AUDIO.alertInterval = setInterval(() => {
+                        if (APP_STATE.currentSpeed > APP_STATE.speedLimit && !AUDIO.muted) {
+                            playAlertSound('danger');
+                        }
+                    }, 2000);
+                }
+                
+                APP_STATE.alertActive = true;
+                APP_STATE.lastSpeedAlert = true;
+                
+            } else if (isNearLimit && !isOverLimit) {
+                // تحذير عند الاقتراب من السرعة القصوى
+                if (APP_STATE.lastSpeedAlert) {
+                    playAlertSound('warning');
+                    showGlobalAlert(`⚠️ أنت تقترب من السرعة القصوى (${Math.round(APP_STATE.currentSpeed)}/${APP_STATE.speedLimit})`, 'warning');
+                }
+                
+                alertBox.classList.remove('show');
+                warningLight.classList.remove('active');
+                APP_STATE.alertActive = false;
+                APP_STATE.lastSpeedAlert = false;
+                
+                if (AUDIO.alertInterval) {
+                    clearInterval(AUDIO.alertInterval);
+                    AUDIO.alertInterval = null;
+                }
+                
+            } else {
+                // عودة للسرعة الآمنة
+                if (APP_STATE.alertActive) {
+                    playAlertSound('success');
+                    showGlobalAlert('✅ تم العودة للسرعة المسموحة', 'success');
+                }
+                
+                alertBox.classList.remove('show');
+                warningLight.classList.remove('active');
+                APP_STATE.alertActive = false;
+                APP_STATE.lastSpeedAlert = false;
+                
+                if (AUDIO.alertInterval) {
+                    clearInterval(AUDIO.alertInterval);
+                    AUDIO.alertInterval = null;
+                }
+            }
+        }
+
+        // ==================== تحديث العرض ====================
+        function updateDisplay() {
+            const speed = APP_STATE.currentSpeed;
+            document.getElementById('speedDisplay').textContent = Math.round(speed);
+            
+            const angle = CONFIG.MIN_ANGLE + (speed / CONFIG.MAX_SPEED) * (CONFIG.MAX_ANGLE - CONFIG.MIN_ANGLE);
+            document.getElementById('needle').style.transform = `rotate(${angle}deg)`;
+            
+            // تغيير لون الإبرة حسب السرعة
+            const needle = document.getElementById('needle');
+            if (speed > APP_STATE.speedLimit) {
+                needle.style.background = 'linear-gradient(to top, #ff0000, #ff44aa)';
+            } else if (speed > APP_STATE.speedLimit - 10) {
+                needle.style.background = 'linear-gradient(to top, #ffaa00, #ff44aa)';
+            } else {
+                needle.style.background = 'linear-gradient(to top, #00ffff, #ff44aa)';
+            }
+        }
+
+        // ==================== تحديث الإحصائيات ====================
+        function updateStats() {
+            document.getElementById('maxSpeed').textContent = Math.round(APP_STATE.maxSpeed);
+            document.getElementById('distance').textContent = APP_STATE.totalDistance.toFixed(1);
+            
+            const elapsed = (Date.now() - APP_STATE.startTime) / 1000 / 60;
+            const hours = Math.floor(elapsed / 60);
+            const minutes = Math.floor(elapsed % 60);
+            document.getElementById('tripTime').textContent = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}`;
+            
+            document.getElementById('avgSpeed').textContent = Math.round(APP_STATE.avgSpeed);
+        }
+
+        // ==================== تحديث المؤشرات ====================
+        function updateMetrics() {
+            document.getElementById('gForce').textContent = APP_STATE.gForce.toFixed(1);
+            document.getElementById('engineHeat').textContent = Math.round(APP_STATE.engineHeat);
+            document.getElementById('fuelEco').textContent = (APP_STATE.fuelEco + (APP_STATE.currentSpeed * 0.01)).toFixed(1);
+            document.getElementById('heartRate').textContent = Math.round(APP_STATE.heartRate);
+            document.getElementById('stressLevel').textContent = Math.round(APP_STATE.stressLevel);
+            document.getElementById('drivingScore').textContent = APP_STATE.drivingScore;
+        }
+
+        // ==================== تحديث الإحداثيات ====================
+        function updateCoordinates() {
+            document.getElementById('latitude').innerHTML = `${APP_STATE.lastPosition.lat.toFixed(6)}° N`;
+            document.getElementById('longitude').innerHTML = `${APP_STATE.lastPosition.lon.toFixed(6)}° E`;
+            
+            const places = ['وسط الرياض', 'طريق الملك فهد', 'حي النزهة', 'الملز', 'العليا', 'الورود'];
+            document.getElementById('address').textContent = places[Math.floor(Math.random() * places.length)];
+        }
+
+        // ==================== تحديث السجل ====================
+        function updateHistory() {
+            const list = document.getElementById('speedHistory');
+            list.innerHTML = '';
+            
+            speedBuffer.slice().reverse().slice(0, 15).forEach(item => {
+                const displaySpeed = CONFIG.UNIT === 'kmh' ? item.speed : item.speed * 0.621371;
+                const overLimit = item.speed > APP_STATE.speedLimit;
+                
+                list.innerHTML += `
+                    <div class="history-item ${overLimit ? 'over-limit' : ''}">
+                        <span class="history-time">${item.time}</span>
+                        <span class="history-speed ${overLimit ? 'over' : ''}">${Math.round(displaySpeed)} ${CONFIG.UNIT === 'kmh' ? 'كم/س' : 'ميل/س'}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // ==================== تحديث الرسم البياني ====================
+        function updateCharts() {
+            const chart = document.getElementById('speedChart');
+            chart.innerHTML = '';
+            
+            const recent = speedBuffer.slice(-CONFIG.CHART_SIZE);
+            recent.forEach(item => {
+                const height = (item.speed / CONFIG.MAX_SPEED) * 100;
+                const displaySpeed = CONFIG.UNIT === 'kmh' ? item.speed : item.speed * 0.621371;
+                
+                chart.innerHTML += `<div class="chart-bar" style="height:${height}%; background:${item.speed > APP_STATE.speedLimit ? 'linear-gradient(180deg, #ff3300, #ff44aa)' : ''}" data-value="${Math.round(displaySpeed)}"></div>`;
+                
+                const seconds = new Date('1970-01-01T' + item.time + 'Z').getSeconds() || 0;
+                chart.innerHTML += `<div class="chart-label">${seconds}ث</div>`;
+            });
+        }
+
+        // ==================== تحديث الوقت ====================
+        function updateTime() {
+            document.getElementById('currentTime').textContent = new Date().toLocaleTimeString('ar-EG');
+        }
+
+        // ==================== دوال التحكم ====================
+        function toggleUnits() {
+            CONFIG.UNIT = CONFIG.UNIT === 'kmh' ? 'mph' : 'kmh';
+            const unitText = CONFIG.UNIT === 'kmh' ? 'كم/س' : 'ميل/س';
+            
+            document.getElementById('unitDisplay').textContent = unitText;
+            document.getElementById('maxSpeedUnit').textContent = unitText;
+            document.getElementById('avgSpeedUnit').textContent = unitText;
+            document.getElementById('distanceUnit').textContent = CONFIG.UNIT === 'kmh' ? 'كم' : 'ميل';
+            
+            updateDisplay();
+            updateHistory();
+            updateCharts();
+            
+            showGlobalAlert(`تم التبديل إلى ${unitText}`, 'success');
+            playAlertSound('success');
+        }
+
+        function resetTrip() {
+            if (confirm('هل أنت متأكد من إعادة تعيين جميع البيانات؟')) {
+                APP_STATE.totalDistance = 0;
+                APP_STATE.maxSpeed = 0;
+                APP_STATE.startTime = Date.now();
+                speedBuffer = [];
+                showGlobalAlert('تم إعادة تعيين البيانات', 'success');
+                playAlertSound('success');
+            }
+        }
+
+        function exportData() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                totalDistance: APP_STATE.totalDistance,
+                maxSpeed: APP_STATE.maxSpeed,
+                avgSpeed: APP_STATE.avgSpeed,
+                speedLimit: APP_STATE.speedLimit,
+                history: speedBuffer,
+                unit: CONFIG.UNIT
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `رحلة-${Date.now()}.json`;
+            a.click();
+            showGlobalAlert('تم تصدير البيانات', 'success');
+            playAlertSound('success');
+        }
+
+        function shareLocation() {
+            const text = `📍 موقعي الحالي:\nخط العرض: ${APP_STATE.lastPosition.lat.toFixed(6)}\nخط الطول: ${APP_STATE.lastPosition.lon.toFixed(6)}\nالسرعة: ${Math.round(APP_STATE.currentSpeed)} كم/س`;
+            
+            if (navigator.share) {
+                navigator.share({ title: 'مشاركة الموقع', text: text });
+            } else {
+                navigator.clipboard.writeText(text);
+                showGlobalAlert('تم نسخ الموقع', 'success');
+            }
+            playAlertSound('success');
+        }
+
+        function centerOnLocation() {
+            if (map && userMarker) {
+                map.setView([APP_STATE.lastPosition.lat, APP_STATE.lastPosition.lon], 16);
+                showGlobalAlert('تم التمركز على موقعك', 'success');
+                playAlertSound('success');
+            }
+        }
+
+        function emergencyStop() {
+            APP_STATE.currentSpeed = 0;
+            updateDisplay();
+            showGlobalAlert('🚨 طوارئ! تم إيقاف المحاكاة', 'danger');
+            playAlertSound('danger');
+        }
+
+        function showGlobalAlert(message, type = 'info') {
+            const alert = document.getElementById('globalAlert');
+            alert.textContent = message;
+            alert.style.borderColor = type === 'danger' ? 'red' : (type === 'warning' ? 'orange' : 'var(--primary)');
+            alert.classList.add('show');
+            
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 3000);
+        }
+
+        // ==================== التهيئة ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            initAudio();
+            createGaugeTicks();
+            initMap();
+            
+            // مراقبة تغيير السرعة المسموحة
+            document.getElementById('speedLimitInput').addEventListener('input', updateSpeedLimit);
+            
+            // تحديث الوقت
+            setInterval(updateTime, 1000);
+            
+            // إضافة بيانات افتراضية للسجل
+            for (let i = 0; i < 15; i++) {
+                speedBuffer.push({
+                    speed: 60 + Math.random() * 80,
+                    time: new Date(Date.now() - i * 30000).toLocaleTimeString('ar-EG'),
+                    overLimit: false
+                });
+            }
+            
+            showGlobalAlert('مرحباً بك في نظام عداد السرعة مع الإنذار الصوتي', 'success');
+            setTimeout(() => playAlertSound('success'), 500);
+        });
+
+        window.addEventListener('resize', () => {
+            clearTimeout(window.resizeTimer);
+            window.resizeTimer = setTimeout(createGaugeTicks, 200);
+        });
+
+        window.addEventListener('orientationchange', () => {
+            setTimeout(createGaugeTicks, 200);
+        });
+    </script>
 </body>
 </html>
